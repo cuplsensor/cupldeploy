@@ -1,0 +1,12 @@
+[submodule "cuplbackend"]
+	path = cuplbackend
+	url = https://github.com/cuplsensor/cuplbackend.git
+[submodule "cuplfrontend"]
+	path = cuplfrontend
+	url = https://github.com/cuplsensor/cuplfrontend.git
+[submodule "cuplTag"]
+	path = cuplTag
+	url = https://github.com/cuplsensor/cupltag.git
+[submodule "cupltag"]
+	path = cupltag
+	url = https://github.com/cuplsensor/cupltag.git
