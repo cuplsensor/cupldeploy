@@ -1,0 +1,28 @@
+redis_r1:
+  image: redis:6.0.8-buster
+  restart: 'on-failure'
+
+cuplbackend:
+  restart: 'on-failure'
+  build: 
+    context: ./cuplbackend
+  depends_on:
+     - redis_r1
+           
+ nginx:
+  restart: 'no'
+  build: 
+    context: ./nginx/
+    args:
+      - F3_WSF_ORIGIN=https://f3.cupl.uk/
+      - F3_WSB_ORIGIN=https://b3.cupl.uk
+  ports:
+   - 80:80
+   - 443:443
+  depends_on:
+   - cuplbackend
+  volumes:
+      - nginx-letsencrypt:/etc/letsencrypt
+
+volumes:
+ nginx-letsencrypt:
