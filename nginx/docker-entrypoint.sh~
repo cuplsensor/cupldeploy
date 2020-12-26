@@ -1,0 +1,3 @@
+#!/bin/bash
+certbot --nginx --agree-tos --email malcolm.mackay121@gmail.com -n --redirect --expand --keep-until-expiring -d b1.cupl.uk -d b2.cupl.uk -d b3.cupl.uk -d f1.cupl.uk -d f3.cupl.uk
+tail -f /dev/null # keep alive
