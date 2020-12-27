@@ -14,10 +14,11 @@ This is done with docker.
 # Set environment variables
 
 ```
-chmod +x
+chmod +x autogenpwd.sh
 export ADMINAPI_CLIENTSECRET=$(./autogenpwd.sh)
 export TAGTOKEN_CLIENTSECRET=$(./autogenpwd.sh)
 export HASHIDS_SALT=$(./autogenpwd.sh)
 export CSRF_SESSION_KEY=$(./autogenpwd.sh)
 export SECRET_KEY=$(./autogenpwd.sh)
+docker-compose config
 ```
