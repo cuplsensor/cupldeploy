@@ -6,3 +6,18 @@ A simple way to deploy a system made up of:
 * The cuplTag hardware and firmware.
 
 This is done with docker.
+
+# Clone the repository
+
+`git clone --recursive https://github.com/cuplsensor/cuplbackend`
+
+# Set environment variables
+
+```
+chmod +x
+export ADMINAPI_CLIENTSECRET=$(./autogenpwd.sh)
+export TAGTOKEN_CLIENTSECRET=$(./autogenpwd.sh)
+export HASHIDS_SALT=$(./autogenpwd.sh)
+export CSRF_SESSION_KEY=$(./autogenpwd.sh)
+export SECRET_KEY=$(./autogenpwd.sh)
+```
