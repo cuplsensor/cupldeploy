@@ -17,6 +17,7 @@ This is done with docker.
 chmod +x autogenpwd.sh
 export ADMINAPI_CLIENTSECRET=$(./autogenpwd.sh)
 export TAGTOKEN_CLIENTSECRET=$(./autogenpwd.sh)
+export DB_PASS=$(./autogenpwd.sh)
 export HASHIDS_SALT=$(./autogenpwd.sh)
 export CSRF_SESSION_KEY=$(./autogenpwd.sh)
 export SECRET_KEY=$(./autogenpwd.sh)
