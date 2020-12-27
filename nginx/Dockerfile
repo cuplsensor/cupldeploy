@@ -17,9 +17,9 @@ RUN rm /etc/nginx/conf.d/default.conf
 #COPY certbot-renew /etc/cron.d/
 #RUN chmod +x /etc/cron.d/certbot-renew
 
-#COPY --from=wsfrontend_f3 /app/build /usr/share/nginx/html/wsfrontend_f3
+COPY --from=cupldeploy_cuplfrontend /app/build /usr/share/nginx/html/cuplfrontend
 
 COPY wsbackend.conf /etc/nginx/conf.d
-#COPY wsfrontend_f3.conf /etc/nginx/conf.d
+#COPY wsfrontend.conf /etc/nginx/conf.d
 
 #ENTRYPOINT ["docker-entrypoint.sh"]

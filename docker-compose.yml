@@ -39,6 +39,14 @@ services:
    depends_on:
      - postgres_p1
      - redis_r1
+
+ cuplfrontend:
+   restart: 'on-failure'
+   build:
+    context: ./cuplfrontend
+    args:
+      - WSF_ORIGIN=http://localhost
+      - WSB_ORIGIN=http://localhost/backend
            
  nginx:
    restart: 'on-failure'
@@ -47,6 +55,8 @@ services:
    ports:
     - 80:80
     - 443:443
+   depends_on:
+     - cuplfrontend
 
 volumes:
  nginx-letsencrypt:
