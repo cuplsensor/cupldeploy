@@ -31,4 +31,5 @@ jobs:
       - name: Run a multi-line script
         run: |
           cd ./cuplfrontend/reactapp
-          echo $PWD
+          export REACT_APP_WSB_ORIGIN=https://b3.cupl.uk
+          npm run build 
