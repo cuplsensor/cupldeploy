@@ -29,4 +29,4 @@ jobs:
       - name: Run a multi-line script
         run: |
           cd cuplfrontend/reactapp
-          echo pwd
+          echo $PWD
