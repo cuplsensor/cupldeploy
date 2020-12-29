@@ -33,7 +33,7 @@ jobs:
           aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws configure set region us-east-1
-          SG_ID=$(aws ec2 describe-security-groups --filters Name=vpc-id,Values=$VPC_ID --region us-east-1)
+          SG_ID=$(aws ec2 describe-security-groups --filters Name=vpc-id,Values='$VPC_ID' --region us-east-1)
           echo $SG_ID
           #ecs-cli configure --cluster githubcluster --default-launch-type FARGATE --config-name ghconfig --region us-east-1
           #ecs-cli configure profile --access-key ${{ secrets.AWS_ACCESS_KEY_ID }} --secret-key ${{ secrets.AWS_SECRET_ACCESS_KEY }} --profile-name tutorial-profile
