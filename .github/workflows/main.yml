@@ -33,7 +33,11 @@ jobs:
           ecs-cli configure profile --access-key ${{ secrets.AWS_ACCESS_KEY_ID }} --secret-key ${{ secrets.AWS_SECRET_ACCESS_KEY }} --profile-name tutorial-profile
           CLIOUTPUT=$(ecs-cli up --cluster-config ghconfig --force --ecs-profile tutorial-profile)
           VPCSUBSTRING=$(echo "$CLIOUTPUT"|grep "VPC"|cut -d':' -f 2)
+          SUBNET1=$(echo "$CLIOUTPUT" |grep "Subnet created" | sed -n 1p | cut -d':' -f 2)
+          SUBNET2=$(echo "$CLIOUTPUT" |grep "Subnet created" | sed -n 2p | cut -d':' -f 2)
           echo $VPCSUBSTRING
+          echo $SUBNET1
+          echo $SUBNET2
      
   # This workflow contains a single job called "build"
   build:
