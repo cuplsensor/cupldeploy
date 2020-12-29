@@ -38,8 +38,8 @@ jobs:
         run: |
           ecs-cli configure --cluster githubcluster --default-launch-type FARGATE --config-name ghconfig --region us-east-1
           ecs-cli configure profile --access-key ${{ secrets.AWS_ACCESS_KEY_ID }} --secret-key ${{ secrets.AWS_SECRET_ACCESS_KEY }} --profile-name tutorial-profile
-          ecs-cli up --cluster-config ghconfig --ecs-profile tutorial-profile
-          VPCSUBSTRING=$(echo "CLIOUTPUT"|grep "VPC"|cut -d':' -f 2)
+          CLIOUTPUT=$(ecs-cli up --cluster-config ghconfig --force --ecs-profile tutorial-profile)
+          VPCSUBSTRING=$(echo "$CLIOUTPUT"|grep "VPC"|cut -d':' -f 2)
           echo $VPCSUBSTRING
 
       # Runs a set of commands using the runners shell. Set CI to false to stop create-react-app from erroring on warnings.
