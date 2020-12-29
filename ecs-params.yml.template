@@ -27,3 +27,4 @@ run_params:
         - ${SUBNET2}
       security_groups:
         - ${SG_ID}
+      assign_public_ip: ENABLED
