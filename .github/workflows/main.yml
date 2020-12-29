@@ -29,26 +29,17 @@ jobs:
       # Run a set of commands with the ec2-cli to start the cluster.
       - name: Start a cluster
         run: |
-          VPC_ID=$(echo vpc-0243213dec7cd83d1)
+          ecs-cli configure --cluster githubcluster --default-launch-type FARGATE --config-name ghconfig --region us-east-1
+          ecs-cli configure profile --access-key ${{ secrets.AWS_ACCESS_KEY_ID }} --secret-key ${{ secrets.AWS_SECRET_ACCESS_KEY }} --profile-name tutorial-profile
+          CLIOUTPUT=$(ecs-cli up --cluster-config ghconfig --force --ecs-profile tutorial-profile)
+          VPC_ID=$(echo "$CLIOUTPUT"|grep "VPC"|cut -d':' -f 2)
+          SUBNET1=$(echo "$CLIOUTPUT" |grep "Subnet created" | sed -n 1p | cut -d':' -f 2)
+          SUBNET2=$(echo "$CLIOUTPUT" |grep "Subnet created" | sed -n 2p | cut -d':' -f 2)
           aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws configure set region us-east-1
-          SG_ID=$(aws ec2 describe-security-groups --filters Name=vpc-id,Values='$VPC_ID' --region us-east-1)
+          SG_ID=$(aws ec2 describe-security-groups --filters Name=vpc-id,Values=$VPC_ID --region us-east-1)
           echo $SG_ID
-          #ecs-cli configure --cluster githubcluster --default-launch-type FARGATE --config-name ghconfig --region us-east-1
-          #ecs-cli configure profile --access-key ${{ secrets.AWS_ACCESS_KEY_ID }} --secret-key ${{ secrets.AWS_SECRET_ACCESS_KEY }} --profile-name tutorial-profile
-          #CLIOUTPUT=$(ecs-cli up --cluster-config ghconfig --force --ecs-profile tutorial-profile)
-          #VPC_ID=$(echo "$CLIOUTPUT"|grep "VPC"|cut -d':' -f 2)
-          #SUBNET1=$(echo "$CLIOUTPUT" |grep "Subnet created" | sed -n 1p | cut -d':' -f 2)
-          #SUBNET2=$(echo "$CLIOUTPUT" |grep "Subnet created" | sed -n 2p | cut -d':' -f 2)
-          #echo $VPC_ID
-          #echo $SUBNET1
-          #echo $SUBNET2
-          #aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
-          #aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          #aws configure set region us-east-1
-          #SG_ID=$(aws ec2 describe-security-groups --filters Name=vpc-id,Values='$VPC_ID' --region us-east-1)
-          #echo $SG_ID
           
      
   # This workflow contains a single job called "build"
