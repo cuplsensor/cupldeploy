@@ -23,7 +23,7 @@ run_params:
   network_configuration:
     awsvpc_configuration:
       subnets:
-        - ${{ env.SUBNET1 }}
-        - ${{ env.SUBNET2 }}
+        - ${SUBNET1}
+        - ${SUBNET2}
       security_groups:
-        - ${{ env.SG_ID }}
+        - ${SG_ID}
