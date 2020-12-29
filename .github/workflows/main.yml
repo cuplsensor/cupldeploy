@@ -41,6 +41,9 @@ jobs:
           SGOUTPUT=$(aws ec2 describe-security-groups --filters Name=vpc-id,Values="$VPC_ID" --region us-east-1)
           SG_ID=$(echo $SGOUTPUT | python3 -c "import sys, json; print(json.load(sys.stdin)['SecurityGroups'][0]['GroupId'])")
           aws ec2 authorize-security-group-ingress --group-id $SG_ID --protocol tcp --port 80 --cidr 0.0.0.0/0 --region us-east-1
+          echo "SUBNET1=$SUBNET1" >> $GITHUB_ENV
+          echo "SUBNET2=$SUBNET2" >> $GITHUB_ENV
+          echo "SG_ID=$SG_ID" >> $GITHUB_ENV
           
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
@@ -50,7 +53,7 @@ jobs:
       # Use the docker-compose file to define a service. STEP5. https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-cli-tutorial-fargate.html
       - name: Start a service
         run: |
-          envsubst < ecs-params.yml.template > ecs-params.yml
+          SUBNET1=${{ env.SUBNET1 }} SUBNET2=${{ env.SUBNET2 }} SG_ID=${{ env.SG_ID }} envsubst < ecs-params.yml.template > ecs-params.yml
           ecs-cli compose --project-name ghproject --file docker-compose.aws.yml service up --create-log-groups --cluster-config ghconfig --ecs-profile tutorial-profile
 
           
