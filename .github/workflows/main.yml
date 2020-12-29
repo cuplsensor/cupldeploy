@@ -15,6 +15,21 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
+  create_cluster:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+    
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Run a set of commands with the ec2-cli to start the cluster.
+      - name: Start a cluster
+        run: |
+          ecs-cli configure --cluster githubcluster --default-launch-type FARGATE --config-name ghconfig --region us-east-1
+          ecs-cli configure profile --access-key ${{ secrets.AWS_ACCESS_KEY_ID }} --secret-key ${{ secrets.AWS_SECRET_ACCESS_KEY }} --profile-name tutorial-profile
+          CLIOUTPUT=$(ecs-cli up --cluster-config ghconfig --force --ecs-profile tutorial-profile)
+          VPCSUBSTRING=$(echo "$CLIOUTPUT"|grep "VPC"|cut -d':' -f 2)
+          echo $VPCSUBSTRING
+     
   # This workflow contains a single job called "build"
   build:
     # The type of runner that the job will run on
@@ -22,7 +37,6 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
- 
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
         with:
@@ -32,15 +46,6 @@ jobs:
       - uses: marocchino/setup-ecs-cli@v1
         with:
           version: "v1.18.0"
-          
-      # Run a set of commands with the ec2-cli to start the cluster.
-      - name: Start a cluster
-        run: |
-          ecs-cli configure --cluster githubcluster --default-launch-type FARGATE --config-name ghconfig --region us-east-1
-          ecs-cli configure profile --access-key ${{ secrets.AWS_ACCESS_KEY_ID }} --secret-key ${{ secrets.AWS_SECRET_ACCESS_KEY }} --profile-name tutorial-profile
-          CLIOUTPUT=$(ecs-cli up --cluster-config ghconfig --force --ecs-profile tutorial-profile)
-          VPCSUBSTRING=$(echo "$CLIOUTPUT"|grep "VPC"|cut -d':' -f 2)
-          echo $VPCSUBSTRING
 
       # Runs a set of commands using the runners shell. Set CI to false to stop create-react-app from erroring on warnings.
       - name: Run a multi-line script
