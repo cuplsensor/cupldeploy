@@ -40,8 +40,12 @@ jobs:
           aws configure set region us-east-1
           SGOUTPUT=$(aws ec2 describe-security-groups --filters Name=vpc-id,Values="$VPC_ID" --region us-east-1)
           SG_ID=$(echo $SGOUTPUT | python3 -c "import sys, json; print(json.load(sys.stdin)['SecurityGroups'][0]['GroupId'])")
-          echo $SG_ID
           aws ec2 authorize-security-group-ingress --group-id $SG_ID --protocol tcp --port 80 --cidr 0.0.0.0/0 --region us-east-1
+          
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+        with:
+          submodules: false
           
       # Use the docker-compose file to define a service. STEP5. https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-cli-tutorial-fargate.html
       - name: Start a service
