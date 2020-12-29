@@ -1,0 +1,29 @@
+version: 1
+task_definition:
+  task_execution_role: ecsTaskExecutionRole
+  ecs_network_mode: awsvpc
+  task_size:
+    mem_limit: 2GB
+    cpu_limit: 1024
+  services:
+    redis_r1: 
+      essential: True
+    cuplbackend:
+      essential: True
+      depends_on:
+       - container_name: redis_r1
+         condition: START
+    nginx:
+      essential: True
+      depends_on:
+       - container_name: cuplbackend
+         condition: START
+
+run_params:
+  network_configuration:
+    awsvpc_configuration:
+      subnets:
+        - ${SUBNET1}
+        - ${SUBNET2}
+      security_groups:
+        - ${SG_ID}
