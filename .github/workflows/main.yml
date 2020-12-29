@@ -55,6 +55,10 @@ jobs:
         run: |
           envsubst < ecs-params.yml.template > ecs-params.yml
           ecs-cli compose --project-name ghproject --file docker-compose.aws.yml service up --create-log-groups --cluster-config ghconfig --ecs-profile tutorial-profile
+        env:
+          SUBNET1: ${{env.SUBNET1}}
+          SUBNET2: ${{env.SUBNET2}}
+          SG_ID: ${{env.SG_ID}}
 
           
  
