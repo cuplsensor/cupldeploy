@@ -43,9 +43,7 @@ services:
    
  nginx:
    restart: 'on-failure'
-   image: nginx
-   volumes:
-    - ./nginx/templates:/etc/nginx/templates
+   image: 166587262071.dkr.ecr.us-east-1.amazonaws.com/cupldeploy_nginx
    logging:
       driver: awslogs
       options:
