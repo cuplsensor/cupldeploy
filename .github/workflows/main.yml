@@ -38,9 +38,6 @@ jobs:
           echo $VPC_ID
           echo $SUBNET1
           echo $SUBNET2
-        
-      - name: Configure the security group
-        run: |
           mkdir -p ~/.aws
           echo "[default]" >> ~/.aws/credentials
           echo "aws_access_key_id = ${{ secrets.AWS_ACCESS_KEY_ID }}" >> ~/.aws/credentials
@@ -50,6 +47,7 @@ jobs:
           echo "output = json" >> ~/.aws/config
           SG_ID=$(aws ec2 describe-security-groups --filters Name=vpc-id,Values='$VPC_ID' --region us-east-1)
           echo $SG_ID
+          
      
   # This workflow contains a single job called "build"
   build:
