@@ -41,13 +41,15 @@ jobs:
       - name: Build and push
         id: docker_build
         uses: docker/build-push-action@v2
+        env:
+          GH_SHA8: ${GITHUB_SHA::8}
         with:
           context: ./cupldeploy_nginx
           file: ./cupldeploy_nginx/Dockerfile
           push: true
           tags: |
             cupl/cupldeploy_nginx:latest
-            cupl/cupldeploy_nginx:${GITHUB_SHA::8}
+            cupl/cupldeploy_nginx:$GH_SHA8
      
   create_cluster:
     needs: [build_nginx_image]
