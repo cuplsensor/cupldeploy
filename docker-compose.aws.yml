@@ -13,7 +13,7 @@ services:
  cuplbackend:
    restart: 'on-failure'
    env_file: .env
-   image: 166587262071.dkr.ecr.us-east-1.amazonaws.com/cupldeploy_cuplbackend
+   image: cupl/backend:latest
    logging:
       driver: awslogs
       options:
@@ -43,7 +43,7 @@ services:
    
  nginx:
    restart: 'on-failure'
-   image: 166587262071.dkr.ecr.us-east-1.amazonaws.com/cupldeploy_nginx
+   image: cupl/cupldeploy_nginx:latest
    logging:
       driver: awslogs
       options:
