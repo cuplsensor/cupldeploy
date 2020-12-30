@@ -39,14 +39,14 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build and push
+        id: docker_build
         uses: docker/build-push-action@v2
         with:
           context: ./cupldeploy_nginx
           file: ./cupldeploy_nginx/Dockerfile
-          platforms: linux/amd64,linux/386
           repository: cupl/cupldeploy_nginx
           push: true
-          tags: user/app:latest
+          tags: cupl/cupldeploy_nginx:latest
      
   create_cluster:
     needs: [build_nginx_image]
