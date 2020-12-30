@@ -17,6 +17,6 @@ RUN rm /etc/nginx/conf.d/default.conf
 #COPY certbot-renew /etc/cron.d/
 #RUN chmod +x /etc/cron.d/certbot-renew
 
-COPY wsbackend.conf /etc/nginx/conf.d
+#COPY wsbackend.conf /etc/nginx/conf.d
 
 #ENTRYPOINT ["docker-entrypoint.sh"]
