@@ -44,9 +44,10 @@ jobs:
         with:
           context: ./cupldeploy_nginx
           file: ./cupldeploy_nginx/Dockerfile
-          repository: cupl/cupldeploy_nginx
           push: true
-          tags: cupl/cupldeploy_nginx:latest
+          tags: |
+            cupl/cupldeploy_nginx:latest
+            cupl/cupldeploy_nginx:${GITHUB_SHA::8}
      
   create_cluster:
     needs: [build_nginx_image]
