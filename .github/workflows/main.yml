@@ -49,7 +49,7 @@ jobs:
           push: true
           tags: |
             cupl/cupldeploy_nginx:latest
-            cupl/cupldeploy_nginx:$GH_SHA8
+            cupl/cupldeploy_nginx:${GH_SHA8}
      
   create_cluster:
     needs: [build_nginx_image]
