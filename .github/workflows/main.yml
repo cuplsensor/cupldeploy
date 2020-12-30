@@ -37,6 +37,12 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+          
+      - name: Prepare tag name
+        id: prep
+        run: |
+          TAG="cupl/cupldeploy_nginx:${GITHUB_SHA::8}"
+          echo ::set-output name=tag::${TAG}
 
       - name: Build and push
         id: docker_build
@@ -49,7 +55,7 @@ jobs:
           push: true
           tags: |
             cupl/cupldeploy_nginx:latest
-            cupl/cupldeploy_nginx:${GH_SHA8}
+            ${{ steps.prep.outputs.tag }}
      
   create_cluster:
     needs: [build_nginx_image]
