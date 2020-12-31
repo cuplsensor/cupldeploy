@@ -68,25 +68,35 @@ jobs:
       - uses: marocchino/setup-ecs-cli@v1
         with:
           version: "v1.18.0"
-      
+          
+      - name: Configure a cluster
+        run: ecs-cli configure --cluster githubcluster --default-launch-type FARGATE --config-name ghconfig --region us-east-1
+        
+      - name: Configure a profile
+        run: ecs-cli configure profile --access-key ${{ secrets.AWS_ACCESS_KEY_ID }} --secret-key ${{ secrets.AWS_SECRET_ACCESS_KEY }} --profile-name tutorial-profile
+        
       # Run a set of commands with the ec2-cli to start the cluster.
-      - name: Start a cluster
+      - name: Start the cluster
         run: |
-          ecs-cli configure --cluster githubcluster --default-launch-type FARGATE --config-name ghconfig --region us-east-1
-          ecs-cli configure profile --access-key ${{ secrets.AWS_ACCESS_KEY_ID }} --secret-key ${{ secrets.AWS_SECRET_ACCESS_KEY }} --profile-name tutorial-profile
           CLIOUTPUT=$(ecs-cli up --cluster-config ghconfig --force --ecs-profile tutorial-profile)
           VPC_ID=$(echo "$CLIOUTPUT" |grep "VPC" | cut -d':' -f 2)
           SUBNET1=$(echo "$CLIOUTPUT" |grep "Subnet created" | sed -n 1p | cut -d':' -f 2)
           SUBNET2=$(echo "$CLIOUTPUT" |grep "Subnet created" | sed -n 2p | cut -d':' -f 2)
+          echo "VPC_ID=$VPC_ID" >> $GITHUB_ENV
+          echo "SUBNET1=$SUBNET1" >> $GITHUB_ENV
+          echo "SUBNET2=$SUBNET2" >> $GITHUB_ENV
+          
+      - name: Get the security group ID
+        run: |
           aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws configure set region us-east-1
           SGOUTPUT=$(aws ec2 describe-security-groups --filters Name=vpc-id,Values="$VPC_ID" --region us-east-1)
           SG_ID=$(echo $SGOUTPUT | python3 -c "import sys, json; print(json.load(sys.stdin)['SecurityGroups'][0]['GroupId'])")
           aws ec2 authorize-security-group-ingress --group-id $SG_ID --protocol tcp --port 80 --cidr 0.0.0.0/0 --region us-east-1
-          echo "SUBNET1=$SUBNET1" >> $GITHUB_ENV
-          echo "SUBNET2=$SUBNET2" >> $GITHUB_ENV
           echo "SG_ID=$SG_ID" >> $GITHUB_ENV
+        env:
+          VPC_ID: ${{env.VPC_ID}}
           
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
@@ -103,8 +113,6 @@ jobs:
           SUBNET2: ${{env.SUBNET2}}
           SG_ID: ${{env.SG_ID}}
 
-          
- 
   # This workflow contains a single job called "build"
   build:
     needs: [create_cluster]
