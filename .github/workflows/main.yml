@@ -84,7 +84,7 @@ jobs:
           echo ::set-output name=noservices::${NOSERVICES}
           
       - name: Stop the first service, if it exists
-        if: ${{ ${{ steps.prep.outputs.clusterservices }} != ${{ steps.prep.outputs.noservices }} }}
+        if: ${{ steps.prep.outputs.clusterservices }} != ${{ steps.prep.outputs.noservices }}
         env:
           CLUSTERSERVICES: ${{ steps.prep.outputs.clusterservices }}
         run : |
