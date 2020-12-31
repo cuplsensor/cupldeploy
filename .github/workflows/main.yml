@@ -84,10 +84,9 @@ jobs:
           echo ::set-output name=noservices::${NOSERVICES}
           
       - name: Stop the first service, if it exists
-        if: ${{ $CLUSTERSERVICES != $NOSERVICES }}
+        if: ${{ ${{ steps.prep.outputs.clusterservices }} != ${{ steps.prep.outputs.noservices }} }}
         env:
           CLUSTERSERVICES: ${{ steps.prep.outputs.clusterservices }}
-          NOSERVICES: ${{ steps.prep.outputs.noservices }}
         run : |
           SERVICE_0=$(echo $CLUSTERSERVICES | python3 -c "import sys, json; print(json.load(sys.stdin)['serviceArns'][0].rsplit('/', 1)[-1])")
           echo $SERVICE_0
