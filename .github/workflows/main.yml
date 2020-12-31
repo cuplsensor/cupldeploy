@@ -47,8 +47,6 @@ jobs:
       - name: Build and push
         id: docker_build
         uses: docker/build-push-action@v2
-        env:
-          GH_SHA8: ${GITHUB_SHA::8}
         with:
           context: ./cupldeploy_nginx
           file: ./cupldeploy_nginx/Dockerfile
@@ -75,13 +73,22 @@ jobs:
       - name: Configure a profile
         run: ecs-cli configure profile --access-key ${{ secrets.AWS_ACCESS_KEY_ID }} --secret-key ${{ secrets.AWS_SECRET_ACCESS_KEY }} --profile-name tutorial-profile
         
-      - name: List services. Stop the first service.
+      - name: List services. 
         run: | 
           aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws configure set region us-east-1
           CLUSTERSERVICES=$(aws ecs list-services --cluster githubcluster)
-          echo $CLUSTERSERVICES
+          NOSERVICES=$(echo { "serviceArns": [] })
+          echo ::set-output name=clusterservices::${CLUSTERSERVICES}
+          echo ::set-output name=noservices::${NOSERVICES}
+          
+      - name: Stop the first service, if it exists
+        if: ${{ $CLUSTERSERVICES != $NOSERVICES }}
+        env:
+          CLUSTERSERVICES: ${{ steps.prep.outputs.clusterservices }}
+          NOSERVICES: ${{ steps.prep.outputs.noservices }}
+        run : |
           SERVICE_0=$(echo $CLUSTERSERVICES | python3 -c "import sys, json; print(json.load(sys.stdin)['serviceArns'][0].rsplit('/', 1)[-1])")
           echo $SERVICE_0
           aws ecs delete-service --cluster githubcluster --service $SERVICE_0 --force
