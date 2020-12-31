@@ -75,6 +75,9 @@ jobs:
       - name: Configure a profile
         run: ecs-cli configure profile --access-key ${{ secrets.AWS_ACCESS_KEY_ID }} --secret-key ${{ secrets.AWS_SECRET_ACCESS_KEY }} --profile-name tutorial-profile
         
+      - name: Stop the cluster
+        run: ecs-cli down --cluster githubcluster --force
+        
       # Run a set of commands with the ec2-cli to start the cluster.
       - name: Start the cluster
         run: |
