@@ -88,9 +88,8 @@ jobs:
           echo $NSERVICES
           echo ::set-output name=nservices::${NSERVICES}
         
-        
       - name: List services and stop the first. This should be enough (I don't expect more than one service to be running).
-        if: ${{ steps.prep.outputs.nservices }} != "0" 
+        if: ${{ steps.prep.outputs.nservices != "0" }} 
         run: | 
           CLUSTERSERVICES=$(aws ecs list-services --cluster githubcluster)
           SERVICE_0=$(echo $CLUSTERSERVICES | python3 -c "import sys, json; print(json.load(sys.stdin)['serviceArns'][0].rsplit('/', 1)[-1])")
