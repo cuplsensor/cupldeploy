@@ -7,6 +7,8 @@ EXPOSE 80
 # /etc/nginx/nginx.conf includes
 RUN rm /etc/nginx/conf.d/default.conf
 
+COPY ./templates /etc/nginx/templates
+
 # Install certbot
 #RUN apt-get -y update
 #RUN apt-get -y install certbot python-certbot-nginx
