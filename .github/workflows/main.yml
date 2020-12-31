@@ -82,11 +82,10 @@ jobs:
           NOSERVICES=$(echo { "serviceArns": [] })
           echo ::set-output name=clusterservices::${CLUSTERSERVICES}
           echo ::set-output name=noservices::${NOSERVICES}
+          echo "CLUSTERSERVICES=$CLUSTERSERVICES" >> $GITHUB_ENV
           
       - name: Stop the first service, if it exists
         if: ${{ steps.prep.outputs.clusterservices }} != ${{ steps.prep.outputs.noservices }}
-        env:
-          CLUSTERSERVICES: ${{ steps.prep.outputs.clusterservices }}
         run : |
           SERVICE_0=$(echo $CLUSTERSERVICES | python3 -c "import sys, json; print(json.load(sys.stdin)['serviceArns'][0].rsplit('/', 1)[-1])")
           echo $SERVICE_0
