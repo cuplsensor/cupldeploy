@@ -73,19 +73,26 @@ jobs:
       - name: Configure a profile
         run: ecs-cli configure profile --access-key ${{ secrets.AWS_ACCESS_KEY_ID }} --secret-key ${{ secrets.AWS_SECRET_ACCESS_KEY }} --profile-name tutorial-profile
         
-      - name: List services. 
-        run: | 
+        
+      - name: Configure the aws cli
+        run: |
           aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws configure set region us-east-1
-          CLUSTERSERVICES=$(aws ecs list-services --cluster githubcluster)
-          EMPTY=$($CLUSTERSERVICES == "{ "serviceArns": [] }" ]] && echo true)
-          echo $EMPTY
-          echo ::set-output name=empty::${EMPTY}
           
-      - name: Stop the first service, if it exists
-        if: ${{ steps.prep.outputs.empty }} != "true"
-        run : |
+      - name: Get the number of services running on the cluster.
+        run: | 
+          CLUSTERINFO=$(aws ecs describe-clusters --cluster githubcluster)
+          echo $CLUSTERINFO
+          NSERVICES=$(echo $CLUSTERINFO | python3 -c "import sys, json; print(json.load(sys.stdin)['clusters'][0]['activeServicesCount'])")
+          echo $NSERVICES
+          echo ::set-output name=nservices::${NSERVICES}
+        
+        
+      - name: List services and stop the first. This should be enough (I don't expect more than one service to be running).
+        if: ${{ steps.prep.outputs.nservices }} != "0" 
+        run: | 
+          CLUSTERSERVICES=$(aws ecs list-services --cluster githubcluster)
           SERVICE_0=$(echo $CLUSTERSERVICES | python3 -c "import sys, json; print(json.load(sys.stdin)['serviceArns'][0].rsplit('/', 1)[-1])")
           echo $SERVICE_0
           aws ecs delete-service --cluster githubcluster --service $SERVICE_0 --force
