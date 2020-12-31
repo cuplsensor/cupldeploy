@@ -82,9 +82,9 @@ jobs:
           aws configure set region us-east-1
           CLUSTERSERVICES=$(aws ecs list-services --cluster githubcluster)
           echo $CLUSTERSERVICES
-          SERVICE_0=$(echo $CLUSTERSERVICES | python3 -c "import sys, json; print(json.load(sys.stdin)['serviceArns'][0])")
+          SERVICE_0=$(echo $CLUSTERSERVICES | python3 -c "import sys, json; print(json.load(sys.stdin)['serviceArns'][0].rsplit('/', 1)[-1])")
           echo $SERVICE_0
-          aws ecs delete-service --service $SERVICE_0
+          aws ecs delete-service --cluster githubcluster --service $SERVICE_0
           sleep 10
           
       
