@@ -84,7 +84,7 @@ jobs:
           echo $CLUSTERSERVICES
           SERVICE_0=$(echo $CLUSTERSERVICES | python3 -c "import sys, json; print(json.load(sys.stdin)['serviceArns'][0].rsplit('/', 1)[-1])")
           echo $SERVICE_0
-          aws ecs delete-service --cluster githubcluster --service $SERVICE_0
+          aws ecs delete-service --cluster githubcluster --service $SERVICE_0 --force
           sleep 10
           
       
