@@ -79,7 +79,7 @@ jobs:
           aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws configure set region us-east-1
           CLUSTERSERVICES=$(aws ecs list-services --cluster githubcluster)
-          EMPTY=$(echo $CLUSTERSERVICES | python3 -c 'if sys.stdin == { "serviceArns": [] }:print "true"')
+          EMPTY=[$CLUSTERSERVICES == { "serviceArns": [] }]
           echo $EMPTY
           echo ::set-output name=empty::${EMPTY}
           
