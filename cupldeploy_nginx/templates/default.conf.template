@@ -1,7 +1,7 @@
 server {
     listen 80;
 
-    location / { try_files $uri/ @app; }
+    location / { try_files $uri @app; }
     location @app {
         include uwsgi_params;
         uwsgi_pass localhost:5001;
