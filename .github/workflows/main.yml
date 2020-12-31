@@ -75,13 +75,19 @@ jobs:
       - name: Configure a profile
         run: ecs-cli configure profile --access-key ${{ secrets.AWS_ACCESS_KEY_ID }} --secret-key ${{ secrets.AWS_SECRET_ACCESS_KEY }} --profile-name tutorial-profile
         
-      - name: Stop the cluster
+      - name: List services. Stop the first service.
         run: | 
           aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws configure set region us-east-1
           CLUSTERSERVICES=$(aws ecs list-services --cluster githubcluster)
           echo $CLUSTERSERVICES
+          SERVICE_0=$(echo $CLUSTERSERVICES | python3 -c "import sys, json; print(json.load(sys.stdin)['serviceArns'][0])")
+          echo $SERVICE_0
+          aws ecs delete-service --service $SERVICE_0
+          sleep 10
+          
+      
         
       # Run a set of commands with the ec2-cli to start the cluster.
       - name: Start the cluster
