@@ -142,7 +142,7 @@ jobs:
           DB_USER: ${{ secrets.DB_USER }}
           DB_NAME: ${{ secrets.DB_NAME }}
           DB_HOST: ${{ secrets.DB_HOST }}
-          SERVER_NAME: ""
+          SERVER_NAME: "0.0.0.0"
           DROP_ON_INIT: "False"
           RATELIMIT_STORAGE_URL: ${{ secrets.RATELIMIT_STORAGE_URL }}
           RATELIMIT_STRATEGY: ${{ secrets.RATELIMIT_STRATEGY }}
