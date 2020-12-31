@@ -99,20 +99,6 @@ jobs:
           
       # Run a set of commands with the ec2-cli to start the cluster.
       - name: Start the cluster
-        env:
-          ADMINAPI_CLIENTSECRET: ${{ secrets.ADMINAPI_CLIENTSECRET }}
-          TAGTOKEN_CLIENTSECRET: ${{ secrets.TAGTOKEN_CLIENTSECRET }}
-          HASHIDS_SALT: ${{ secrets.HASHIDS_SALT }}
-          CSRF_SESSION_KEY: ${{ secrets.CSRF_SESSION_KEY }}
-          SECRET_KEY: ${{ secrets.SECRET_KEY }}
-          DB_PASS: ${{ secrets.DB_PASS }}
-          DB_USER: ${{ secrets.DB_USER }}
-          DB_NAME: ${{ secrets.DB_NAME }}
-          DB_HOST: ${{ secrets.DB_HOST }}
-          DROP_ON_INIT: "False"
-          RATELIMIT_STORAGE_URL: ${{ secrets.RATELIMIT_STORAGE_URL }}
-          RATELIMIT_STRATEGY: ${{ secrets.RATELIMIT_STRATEGY }}
-          RATELIMIT_ENABLED: ${{ secrets.RATELIMIT_ENABLED }}
         run: |
           CLIOUTPUT=$(ecs-cli up --cluster-config ghconfig --force --ecs-profile tutorial-profile)
           VPC_ID=$(echo "$CLIOUTPUT" |grep "VPC" | cut -d':' -f 2)
@@ -147,6 +133,19 @@ jobs:
           SUBNET1: ${{env.SUBNET1}}
           SUBNET2: ${{env.SUBNET2}}
           SG_ID: ${{env.SG_ID}}
+          ADMINAPI_CLIENTSECRET: ${{ secrets.ADMINAPI_CLIENTSECRET }}
+          TAGTOKEN_CLIENTSECRET: ${{ secrets.TAGTOKEN_CLIENTSECRET }}
+          HASHIDS_SALT: ${{ secrets.HASHIDS_SALT }}
+          CSRF_SESSION_KEY: ${{ secrets.CSRF_SESSION_KEY }}
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          DB_PASS: ${{ secrets.DB_PASS }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DROP_ON_INIT: "False"
+          RATELIMIT_STORAGE_URL: ${{ secrets.RATELIMIT_STORAGE_URL }}
+          RATELIMIT_STRATEGY: ${{ secrets.RATELIMIT_STRATEGY }}
+          RATELIMIT_ENABLED: ${{ secrets.RATELIMIT_ENABLED }}
 
   # This workflow contains a single job called "build"
   build:
