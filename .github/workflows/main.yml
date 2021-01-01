@@ -142,6 +142,7 @@ jobs:
           DB_USER: ${{ secrets.DB_USER }}
           DB_NAME: ${{ secrets.DB_NAME }}
           DB_HOST: ${{ secrets.DB_HOST }}
+          FLASK_ENV: development
           SERVER_NAME: nginx
           WSB_HOST: localhost
           WSB_PORT: 5001 
