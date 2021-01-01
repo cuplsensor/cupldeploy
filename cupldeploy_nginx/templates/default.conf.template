@@ -1,5 +1,6 @@
 server {
     listen 80;
+    rewrite ^ http://nginx$request_uri? permanent;
 
     location / { try_files $uri @app; }
     location @app {
