@@ -90,7 +90,7 @@ jobs:
           
       # Run a set of commands with the ec2-cli to start the cluster.
       - name: Start the cluster
-        if: steps.prep.outputs.nclusters == 0
+        if: ${{ steps.prep.outputs.nclusters }} == 0
         run: |
           CLIOUTPUT=$(ecs-cli up --cluster-config ghconfig --force --ecs-profile tutorial-profile)
           VPC_ID=$(echo "$CLIOUTPUT" |grep "VPC" | cut -d':' -f 2)
@@ -109,7 +109,7 @@ jobs:
           echo ::set-output name=nservices::${NSERVICES}
         
       - name: List services and stop the first. This should be enough (I don't expect more than one service to be running).
-        if: steps.prep.outputs.nservices == 1
+        if: ${{ steps.prep.outputs.nservices }} == 1
         run: | 
           CLUSTERSERVICES=$(aws ecs list-services --cluster githubcluster)
           SERVICE_0=$(echo $CLUSTERSERVICES | python3 -c "import sys, json; print(json.load(sys.stdin)['serviceArns'][0].rsplit('/', 1)[-1])")
