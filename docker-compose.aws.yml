@@ -25,13 +25,11 @@ services:
      - DB_NAME
      - DB_PORT
      - DB_USER
-     - SERVER_NAME
      - DROP_ON_INIT
      - WSB_PORT
      - RATELIMIT_STORAGE_URL
      - RATELIMIT_STRATEGY
      - RATELIMIT_ENABLED
-     - FLASK_ENV
      # Passwords
      - DB_PASS
      - ADMINAPI_CLIENTSECRET
