@@ -100,7 +100,14 @@ jobs:
           echo $CLIOUTPUT
           echo "VPC_ID=$VPC_ID" >> $GITHUB_ENV
           echo "SUBNET1=$SUBNET1" >> $GITHUB_ENV
-          echo "SUBNET2=$SUBNET2" >> $GITHUB_ENV    
+          echo "SUBNET2=$SUBNET2" >> $GITHUB_ENV
+          
+      # Get information on the running cluster
+      - name: Get information on the running cluster
+        if: steps.clustercheck.outputs.nclusters == 1
+        run: |
+          CLUSTERINFO=$(aws ecs describe-clusters --cluster githubcluster)
+          echo $CLUSTERINFO
       
       # https://dev.to/tomassirio/if-statements-on-github-actions-545d
       - name: Get the number of services running on the cluster.
