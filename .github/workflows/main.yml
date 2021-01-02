@@ -65,14 +65,7 @@ jobs:
       # Sets up the ec2-cli. This is needed for deploying the backend to Amazon fargate.
       - uses: marocchino/setup-ecs-cli@v1
         with:
-          version: "v1.18.0"
-          
-      - name: Configure a cluster
-        run: ecs-cli configure --cluster githubcluster --default-launch-type FARGATE --config-name ghconfig --region us-east-1
-        
-      - name: Configure a profile
-        run: ecs-cli configure profile --access-key ${{ secrets.AWS_ACCESS_KEY_ID }} --secret-key ${{ secrets.AWS_SECRET_ACCESS_KEY }} --profile-name tutorial-profile
-        
+          version: "v1.18.0"      
         
       - name: Configure the aws cli
         run: |
@@ -88,6 +81,14 @@ jobs:
           NCLUSTERS=$(echo $CLUSTERINFO | python3 -c "import sys, json; print(len(json.load(sys.stdin)['clusters']))")
           echo $NCLUSTERS
           echo ::set-output name=nclusters::${NCLUSTERS}
+          
+      - name: Configure a cluster
+        if: steps.clustercheck.outputs.nclusters == 0
+        run: ecs-cli configure --cluster githubcluster --default-launch-type FARGATE --config-name ghconfig --region us-east-1
+        
+      - name: Configure a profile
+        if: steps.clustercheck.outputs.nclusters == 0
+        run: ecs-cli configure profile --access-key ${{ secrets.AWS_ACCESS_KEY_ID }} --secret-key ${{ secrets.AWS_SECRET_ACCESS_KEY }} --profile-name tutorial-profile
           
       # Run a set of commands with the ec2-cli to start the cluster.
       - name: Start the cluster
