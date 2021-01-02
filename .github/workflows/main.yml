@@ -85,6 +85,7 @@ jobs:
           CLUSTERINFO=$(aws ecs describe-clusters --cluster githubcluster)
           echo $CLUSTERINFO
           NCLUSTERS=$(echo $CLUSTERINFO | python3 -c "import sys, json; print(len(json.load(sys.stdin)['clusters']))")
+          echo $NCLUSTERS
           echo ::set-output name=nclusters::${NCLUSTERS}
           
       # Run a set of commands with the ec2-cli to start the cluster.
