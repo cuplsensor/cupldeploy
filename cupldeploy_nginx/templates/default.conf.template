@@ -1,5 +1,5 @@
 server {
-    listen 443;
+    listen 80;
 
     location / { try_files $uri @app; }
     location @app {
@@ -11,9 +11,11 @@ server {
 server {
     listen 80;
     server_name cuplsensor.com;
-    
-    if ($http_x_forwarded_proto != "https") {
-        rewrite ^(.*)$ https://$host$request_uri permanent;
+
+    location / { try_files $uri @app; }
+    location @app {
+        include uwsgi_params;
+        uwsgi_pass localhost:5001;
     }
 }
 
