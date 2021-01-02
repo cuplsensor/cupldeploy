@@ -84,7 +84,6 @@ jobs:
         run: | 
           CLUSTERINFO=$(aws ecs describe-clusters --cluster githubcluster)
           echo $CLUSTERINFO
-          echo "CLUSTERINFO=$CLUSTERINFO" >> $GITHUB_ENV
           NCLUSTERS=$(echo $CLUSTERINFO | python3 -c "import sys, json; print(len(json.load(sys.stdin)['clusters']))")
           echo ::set-output name=nclusters::${NCLUSTERS}
           
@@ -103,11 +102,10 @@ jobs:
           
       - name: Get the number of services running on the cluster.
         run: |
+          CLUSTERINFO=$(aws ecs describe-clusters --cluster githubcluster)
           NSERVICES=$(echo $CLUSTERINFO | python3 -c "import sys, json; print(json.load(sys.stdin)['clusters'][0]['activeServicesCount'])")
           echo $NSERVICES
           echo ::set-output name=nservices::${NSERVICES}
-        env:
-          CLUSTERINFO: ${{env.CLUSTERINFO}}
         
       - name: List services and stop the first. This should be enough (I don't expect more than one service to be running).
         if: steps.prep.outputs.nservices == 1
