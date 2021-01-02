@@ -100,7 +100,7 @@ jobs:
       # Run a set of commands with the ec2-cli to start the cluster.
       - name: Start the cluster
         run: |
-          CLIOUTPUT=$(ecs-cli up --cluster-config ghconfig --force --ecs-profile tutorial-profile)
+          CLIOUTPUT=$(ecs-cli up --cluster-config ghconfig --force --ecs-profile tutorial-profile --enable-service-discovery)
           VPC_ID=$(echo "$CLIOUTPUT" |grep "VPC" | cut -d':' -f 2)
           SUBNET1=$(echo "$CLIOUTPUT" |grep "Subnet created" | sed -n 1p | cut -d':' -f 2)
           SUBNET2=$(echo "$CLIOUTPUT" |grep "Subnet created" | sed -n 2p | cut -d':' -f 2)
