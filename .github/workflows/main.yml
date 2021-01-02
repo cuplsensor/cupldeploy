@@ -109,9 +109,11 @@ jobs:
           VPC_ID=${{ secrets.VPC_ID }}
           SUBNET1=${{ secrets.SUBNET1 }}
           SUBNET2=${{ secrets.SUBNET2 }}
+          SG_ID=${{ secrets.SG_ID }}
           echo "VPC_ID=$VPC_ID" >> $GITHUB_ENV
           echo "SUBNET1=$SUBNET1" >> $GITHUB_ENV
           echo "SUBNET2=$SUBNET2" >> $GITHUB_ENV
+          echo "SG_ID=$SG_ID" >> $GITHUB_ENV
       
       # https://dev.to/tomassirio/if-statements-on-github-actions-545d
       - name: Get the number of services running on the cluster.
@@ -134,6 +136,7 @@ jobs:
           sleep 10
         
       - name: Get the security group ID
+        if: steps.clustercheck.outputs.nclusters == 0
         run: |
           SGOUTPUT=$(aws ec2 describe-security-groups --filters Name=vpc-id,Values="$VPC_ID" --region us-east-1)
           SG_ID=$(echo $SGOUTPUT | python3 -c "import sys, json; print(json.load(sys.stdin)['SecurityGroups'][0]['GroupId'])")
