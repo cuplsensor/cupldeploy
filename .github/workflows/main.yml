@@ -114,6 +114,7 @@ jobs:
         id: servicecheck
         run: |
           CLUSTERINFO=$(aws ecs describe-clusters --cluster githubcluster)
+          echo $CLUSTERINFO
           NSERVICES=$(echo $CLUSTERINFO | python3 -c "import sys, json; print(json.load(sys.stdin)['clusters'][0]['activeServicesCount'])")
           echo $NSERVICES
           echo ::set-output name=nservices::${NSERVICES}
