@@ -103,11 +103,15 @@ jobs:
           echo "SUBNET2=$SUBNET2" >> $GITHUB_ENV
           
       # Get information on the running cluster
-      - name: Get information on the running cluster
+      - name: Get VPC and subnets from secrets
         if: steps.clustercheck.outputs.nclusters == 1
         run: |
-          CLUSTERINFO=$(aws ecs describe-clusters --cluster githubcluster)
-          echo $CLUSTERINFO
+          VPC_ID=${{ secrets.VPC_ID }}
+          SUBNET1=${{ secrets.SUBNET1 }}
+          SUBNET2=${{ secrets.SUBNET2 }}
+          echo "VPC_ID=$VPC_ID" >> $GITHUB_ENV
+          echo "SUBNET1=$SUBNET1" >> $GITHUB_ENV
+          echo "SUBNET2=$SUBNET2" >> $GITHUB_ENV
       
       # https://dev.to/tomassirio/if-statements-on-github-actions-545d
       - name: Get the number of services running on the cluster.
