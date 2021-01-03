@@ -164,11 +164,12 @@ jobs:
       # Get an ARN for the existing target group.
       - name: Get an ARN for the existing target group.
         run: |
-          TGOUTPUT = ${{ env.TGOUTPUT }}
           echo $TGOUTPUT
           TARGET_GROUP_ARN=$(echo $TGOUTPUT | python3 -c "import sys, json; print(json.load(sys.stdin)['TargetGroups'][0]['TargetGroupArn'])")
           echo $TARGET_GROUP_ARN
           echo "TARGET_GROUP_ARN=$TARGET_GROUP_ARN" >> $GITHUB_ENV
+        env:
+          TGOUTPUT: ${{env.TGOUTPUT}}
           
       # Get listeners for the load balancer.
       - name: Add a rule to a load balancer listener. This expects that (1) an application load balancer has been set up and (2) and HTTPS listener has been added. 
