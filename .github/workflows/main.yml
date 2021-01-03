@@ -86,7 +86,7 @@ jobs:
           echo ::set-output name=nclusters::${NCLUSTERS}
           
       - name: Configure a cluster
-        run: ecs-cli configure --cluster ${{ env.CLUSTERNAME }} --default-launch-type FARGATE --config-name ${{ env.SERVICENAME }}_config --region ${{ env.REGION }}
+        run: ecs-cli configure --cluster ${{ env.CLUSTERNAME }} --default-launch-type FARGATE --config-name ${{ env.SERVICENAME }}-config --region ${{ env.REGION }}
         
       - name: Configure a profile
         run: ecs-cli configure profile --access-key ${{ secrets.AWS_ACCESS_KEY_ID }} --secret-key ${{ secrets.AWS_SECRET_ACCESS_KEY }} --profile-name tutorial-profile
@@ -96,7 +96,7 @@ jobs:
         id: startcluster
         if: steps.clustercheck.outputs.nclusters == 0
         run: |
-          CLIOUTPUT=$(ecs-cli up --cluster-config ${{ env.SERVICENAME }}_config --force --ecs-profile tutorial-profile)
+          CLIOUTPUT=$(ecs-cli up --cluster-config ${{ env.SERVICENAME }}-config --force --ecs-profile tutorial-profile)
           VPC_ID=$(echo "$CLIOUTPUT" |grep "VPC" | cut -d':' -f 2)
           SUBNET1=$(echo "$CLIOUTPUT" |grep "Subnet created" | sed -n 1p | cut -d':' -f 2)
           SUBNET2=$(echo "$CLIOUTPUT" |grep "Subnet created" | sed -n 2p | cut -d':' -f 2)
@@ -149,7 +149,7 @@ jobs:
       - name: Check if a target group exists for this service.
         id: tgcheck
         run: |
-          TGINFO=$(aws elbv2 describe-target-groups --names ${{ env.SERVICENAME }}_tg)
+          TGINFO=$(aws elbv2 describe-target-groups --names ${{ env.SERVICENAME }}-tg)
           NTARGETGROUPS=$(echo $TGINFO | python3 -c "import sys, json; print(len(json.load(sys.stdin)['TargetGroups']))")
           echo ::set-output name=tginfo::${TGINFO}
           echo ::set-output name=ntargetgroups::${NTARGETGROUPS}
@@ -158,7 +158,7 @@ jobs:
       - name: Create a target group and extract its ARN.
         if: steps.tgcheck.outputs.ntargetgroups == 0
         run: |
-          TGOUTPUT=$(aws elbv2 create-target-group --name ${{ env.SERVICENAME }}_tg --protocol HTTP --port 80 --vpc-id ${{env.VPC_ID}} --health-check-protocol HTTP --health-check-port 80 --health-check-enabled)
+          TGOUTPUT=$(aws elbv2 create-target-group --name ${{ env.SERVICENAME }}-tg --protocol HTTP --port 80 --vpc-id ${{env.VPC_ID}} --health-check-protocol HTTP --health-check-port 80 --health-check-enabled)
           echo $TGOUTPUT
           TARGET_GROUP_ARN=$(echo $TGOUTPUT | python3 -c "import sys, json; print(json.load(sys.stdin)['TargetGroups'][0]['TargetGroupArn'])")
           echo $TARGET_GROUP_ARN
@@ -185,7 +185,7 @@ jobs:
       - name: Start a service
         run: |
           envsubst < ecs-params.yml.template > ecs-params.yml
-          ecs-cli compose --project-name ${{ env.SERVICENAME }} --file docker-compose.aws.yml service up --create-log-groups --cluster-config ${{ env.SERVICENAME }}_config --ecs-profile tutorial-profile --target-group-arn $TARGET_GROUP_ARN --container-name nginx --container-port 80
+          ecs-cli compose --project-name ${{ env.SERVICENAME }} --file docker-compose.aws.yml service up --create-log-groups --cluster-config ${{ env.SERVICENAME }}-config --ecs-profile tutorial-profile --target-group-arn $TARGET_GROUP_ARN --container-name nginx --container-port 80
         env:
           SUBNET1: ${{env.SUBNET1}}
           SUBNET2: ${{env.SUBNET2}}
