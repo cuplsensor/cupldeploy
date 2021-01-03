@@ -138,7 +138,7 @@ jobs:
         if: steps.servicecheck.outputs.nservices == 1
         run: | 
           aws ecs delete-service --cluster ${{ env.CLUSTERNAME }} --service ${{ env.SERVICENAME }} --force
-          sleep 10
+          sleep 120
           
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
@@ -175,6 +175,7 @@ jobs:
           HASHIDS_SALT: ${{ secrets.HASHIDS_SALT }}
           CSRF_SESSION_KEY: ${{ secrets.CSRF_SESSION_KEY }}
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          SERVER_NAME: cuplsensor.com/${{ env.SERVICENAME }}
           DB_PASS: ${{ secrets.DB_PASS }}
           DB_USER: ${{ secrets.DB_USER }}
           DB_NAME: ${{ secrets.DB_NAME }}
