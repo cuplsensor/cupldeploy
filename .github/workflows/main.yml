@@ -56,16 +56,19 @@ jobs:
             ${{ steps.prep.outputs.tag }}
      
   create_cluster:
-    needs: [build_nginx_image]
+    #needs: [build_nginx_image]
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
+    env: 
+      CLUSTERNAME: githubcluster
     
     # Steps represent a sequence of tasks that will be executed as part of the job
-    steps:
+    steps:          
       # Sets up the ec2-cli. This is needed for deploying the backend to Amazon fargate.
       - uses: marocchino/setup-ecs-cli@v1
         with:
-          version: "v1.18.0"      
+          version: "v1.18.0"
+      
         
       - name: Configure the aws cli
         run: |
@@ -76,14 +79,14 @@ jobs:
       - name: Find out if the cluster is running.
         id: clustercheck
         run: | 
-          CLUSTERINFO=$(aws ecs describe-clusters --cluster githubcluster)
+          CLUSTERINFO=$(aws ecs describe-clusters --cluster ${{ env.CLUSTERNAME }})
           echo $CLUSTERINFO
           NCLUSTERS=$(echo $CLUSTERINFO | python3 -c "import sys, json; print(len(json.load(sys.stdin)['clusters']))")
           echo $NCLUSTERS
           echo ::set-output name=nclusters::${NCLUSTERS}
           
       - name: Configure a cluster
-        run: ecs-cli configure --cluster githubcluster --default-launch-type FARGATE --config-name ghconfig3 --region us-east-1
+        run: ecs-cli configure --cluster ${{ env.CLUSTERNAME }} --default-launch-type FARGATE --config-name ghconfig3 --region us-east-1
         
       - name: Configure a profile
         run: ecs-cli configure profile --access-key ${{ secrets.AWS_ACCESS_KEY_ID }} --secret-key ${{ secrets.AWS_SECRET_ACCESS_KEY }} --profile-name tutorial-profile
@@ -120,34 +123,21 @@ jobs:
           SG_ID=${{ secrets.SG_ID }}
           echo "SUBNET1=$SUBNET1" >> $GITHUB_ENV
           echo "SUBNET2=$SUBNET2" >> $GITHUB_ENV
-          echo "SG_ID=$SG_ID" >> $GITHUB_ENV
-      
-      # https://dev.to/tomassirio/if-statements-on-github-actions-545d
-      - name: Get the number of services running on the cluster.
-        id: servicecheck
-        run: |
-          CLUSTERINFO=$(aws ecs describe-clusters --cluster githubcluster)
-          echo $CLUSTERINFO
-          NSERVICES=$(echo $CLUSTERINFO | python3 -c "import sys, json; print(json.load(sys.stdin)['clusters'][0]['activeServicesCount'])")
-          echo $NSERVICES
-          echo ::set-output name=nservices::${NSERVICES}
-          
+          echo "SG_ID=$SG_ID" >> $GITHUB_ENV          
           
       - name: Describe services under a given name.
-        if: steps.servicecheck.outputs.nservices == 1
+        id: servicecheck
         run: | 
-          CLUSTERSERVICES=$(aws ecs describe-services --cluster githubcluster --service ghproject3)
+          CLUSTERSERVICES=$(aws ecs describe-services --cluster ${{ env.CLUSTERNAME }} --service ghproject3)
           echo $CLUSTERSERVICES
-          sleep 10
+          NSERVICES=$(echo $CLUSTERSERVICES | python3 -c "import sys, json; print(len(json.load(sys.stdin)['services']))")
+          echo $NSERVICES
+          echo ::set-output name=nservices::${NSERVICES}
         
       - name: List services and stop the first. This should be enough (I don't expect more than one service to be running).
         if: steps.servicecheck.outputs.nservices == 1
         run: | 
-          CLUSTERSERVICES=$(aws ecs list-services --cluster githubcluster)
-          echo $CLUSTERSERVICES
-          SERVICE_0=$(echo $CLUSTERSERVICES | python3 -c "import sys, json; print(json.load(sys.stdin)['serviceArns'][0].rsplit('/', 1)[-1])")
-          echo $SERVICE_0
-          #######asfdsadfsa#####aws ecs delete-service --cluster githubcluster --service $SERVICE_0 --force
+          aws ecs delete-service --cluster ${{ env.CLUSTERNAME }} --service ghproject3 --force
           sleep 10
           
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
