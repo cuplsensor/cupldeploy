@@ -90,26 +90,34 @@ jobs:
           
       # Run a set of commands with the ec2-cli to start the cluster.
       - name: Start the cluster
+        id: startcluster
         if: steps.clustercheck.outputs.nclusters == 0
         run: |
           CLIOUTPUT=$(ecs-cli up --cluster-config ghconfig3 --force --ecs-profile tutorial-profile)
           VPC_ID=$(echo "$CLIOUTPUT" |grep "VPC" | cut -d':' -f 2)
           SUBNET1=$(echo "$CLIOUTPUT" |grep "Subnet created" | sed -n 1p | cut -d':' -f 2)
           SUBNET2=$(echo "$CLIOUTPUT" |grep "Subnet created" | sed -n 2p | cut -d':' -f 2)
+          echo ::set-output name=vpc_id::${VPC_ID}
           echo $CLIOUTPUT
-          echo "VPC_ID=$VPC_ID" >> $GITHUB_ENV
           echo "SUBNET1=$SUBNET1" >> $GITHUB_ENV
           echo "SUBNET2=$SUBNET2" >> $GITHUB_ENV
+          
+      - name: Get the security group ID
+        if: steps.clustercheck.outputs.nclusters == 0
+        run: |
+          VPC_ID=${{ steps.startcluster.outputs.vpc_id }}
+          SGOUTPUT=$(aws ec2 describe-security-groups --filters Name=vpc-id,Values="$VPC_ID" --region us-east-1)
+          SG_ID=$(echo $SGOUTPUT | python3 -c "import sys, json; print(json.load(sys.stdin)['SecurityGroups'][0]['GroupId'])")
+          aws ec2 authorize-security-group-ingress --group-id $SG_ID --protocol tcp --port 80 --cidr 0.0.0.0/0 --region us-east-1
+          echo "SG_ID=$SG_ID" >> $GITHUB_ENV
           
       # Get information on the running cluster
       - name: Get VPC and subnets from secrets
         if: steps.clustercheck.outputs.nclusters == 1
         run: |
-          VPC_ID=${{ secrets.VPC_ID }}
           SUBNET1=${{ secrets.SUBNET1 }}
           SUBNET2=${{ secrets.SUBNET2 }}
           SG_ID=${{ secrets.SG_ID }}
-          echo "VPC_ID=$VPC_ID" >> $GITHUB_ENV
           echo "SUBNET1=$SUBNET1" >> $GITHUB_ENV
           echo "SUBNET2=$SUBNET2" >> $GITHUB_ENV
           echo "SG_ID=$SG_ID" >> $GITHUB_ENV
@@ -123,6 +131,14 @@ jobs:
           NSERVICES=$(echo $CLUSTERINFO | python3 -c "import sys, json; print(json.load(sys.stdin)['clusters'][0]['activeServicesCount'])")
           echo $NSERVICES
           echo ::set-output name=nservices::${NSERVICES}
+          
+          
+      - name: Describe services under a given name.
+        if: steps.servicecheck.outputs.nservices == 1
+        run: | 
+          CLUSTERSERVICES=$(aws ecs describe-services --cluster githubcluster --service ghproject3)
+          echo $CLUSTERSERVICES
+          sleep 10
         
       - name: List services and stop the first. This should be enough (I don't expect more than one service to be running).
         if: steps.servicecheck.outputs.nservices == 1
@@ -131,18 +147,8 @@ jobs:
           echo $CLUSTERSERVICES
           SERVICE_0=$(echo $CLUSTERSERVICES | python3 -c "import sys, json; print(json.load(sys.stdin)['serviceArns'][0].rsplit('/', 1)[-1])")
           echo $SERVICE_0
-          aws ecs delete-service --cluster githubcluster --service $SERVICE_0 --force
+          #######asfdsadfsa#####aws ecs delete-service --cluster githubcluster --service $SERVICE_0 --force
           sleep 10
-        
-      - name: Get the security group ID
-        if: steps.clustercheck.outputs.nclusters == 0
-        run: |
-          SGOUTPUT=$(aws ec2 describe-security-groups --filters Name=vpc-id,Values="$VPC_ID" --region us-east-1)
-          SG_ID=$(echo $SGOUTPUT | python3 -c "import sys, json; print(json.load(sys.stdin)['SecurityGroups'][0]['GroupId'])")
-          aws ec2 authorize-security-group-ingress --group-id $SG_ID --protocol tcp --port 80 --cidr 0.0.0.0/0 --region us-east-1
-          echo "SG_ID=$SG_ID" >> $GITHUB_ENV
-        env:
-          VPC_ID: ${{env.VPC_ID}}
           
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
