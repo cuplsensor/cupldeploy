@@ -166,7 +166,7 @@ jobs:
       # Get listeners for the load balancer.
       - name: Add a rule to a load balancer listener. This expects that (1) an application load balancer has been set up and (2) and HTTPS listener has been added. 
         run: |
-          PRIORITY=$(1 + $RANDOM % 10000)
+          PRIORITY=$(echo $RANDOM)
           RULEOUTPUT=$(aws elbv2 create-rule --listener-arn ${{ secrets.HTTPS_LISTENER_ARN }} --priority $PRIORITY --conditions '{"Field":"path-pattern","PathPatternConfig":{"Values": ["/${{ env.SERVICENAME }}/*"]}}' --actions Type=forward,TargetGroupArn=${{ env.TARGET_GROUP_ARN }})
           echo $RULEOUTPUT
           
