@@ -11,8 +11,11 @@ server {
 server {
     listen 80;
     server_name cuplsensor.com;
-
-    location / { try_files $uri @app; }
+    
+    location / { 
+        rewrite ^/component(.*)$ $1 break;
+        try_files $uri @app; 
+    }
     location @app {
         include uwsgi_params;
         uwsgi_pass localhost:5001;
