@@ -16,7 +16,6 @@ server {
         try_files $uri @app; 
     }
     location @app {
-        rewrite ^/latest(/.*)$ $1 last;
         include uwsgi_params;
         uwsgi_pass localhost:5001;
     }
