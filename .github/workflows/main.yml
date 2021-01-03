@@ -62,7 +62,6 @@ jobs:
     env: 
       CLUSTERNAME: githubcluster
       SERVICENAME: ghproject3
-      CONFIGNAME: ${{ env.SERVICENAME }} + "-config"
       REGION: us-east-1
     
     # Steps represent a sequence of tasks that will be executed as part of the job
@@ -89,7 +88,7 @@ jobs:
           echo ::set-output name=nclusters::${NCLUSTERS}
           
       - name: Configure a cluster
-        run: ecs-cli configure --cluster ${{ env.CLUSTERNAME }} --default-launch-type FARGATE --config-name ghconfig3 --region ${{ env.REGION }}
+        run: ecs-cli configure --cluster ${{ env.CLUSTERNAME }} --default-launch-type FARGATE --config-name ${{ env.SERVICENAME }}_config --region ${{ env.REGION }}
         
       - name: Configure a profile
         run: ecs-cli configure profile --access-key ${{ secrets.AWS_ACCESS_KEY_ID }} --secret-key ${{ secrets.AWS_SECRET_ACCESS_KEY }} --profile-name tutorial-profile
@@ -99,7 +98,7 @@ jobs:
         id: startcluster
         if: steps.clustercheck.outputs.nclusters == 0
         run: |
-          CLIOUTPUT=$(ecs-cli up --cluster-config ghconfig3 --force --ecs-profile tutorial-profile)
+          CLIOUTPUT=$(ecs-cli up --cluster-config ${{ env.SERVICENAME }}_config --force --ecs-profile tutorial-profile)
           VPC_ID=$(echo "$CLIOUTPUT" |grep "VPC" | cut -d':' -f 2)
           SUBNET1=$(echo "$CLIOUTPUT" |grep "Subnet created" | sed -n 1p | cut -d':' -f 2)
           SUBNET2=$(echo "$CLIOUTPUT" |grep "Subnet created" | sed -n 2p | cut -d':' -f 2)
@@ -152,7 +151,7 @@ jobs:
       - name: Start a service
         run: |
           envsubst < ecs-params.yml.template > ecs-params.yml
-          ecs-cli compose --project-name ${{ env.SERVICENAME }} --file docker-compose.aws.yml service up --create-log-groups --cluster-config ghconfig3 --ecs-profile tutorial-profile --target-group-arn $TARGET_GROUP_ARN --container-name nginx --container-port 80
+          ecs-cli compose --project-name ${{ env.SERVICENAME }} --file docker-compose.aws.yml service up --create-log-groups --cluster-config ${{ env.SERVICENAME }}_config --ecs-profile tutorial-profile --target-group-arn $TARGET_GROUP_ARN --container-name nginx --container-port 80
         env:
           SUBNET1: ${{env.SUBNET1}}
           SUBNET2: ${{env.SUBNET2}}
