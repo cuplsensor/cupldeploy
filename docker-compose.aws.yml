@@ -27,6 +27,7 @@ services:
      - DB_USER
      - DROP_ON_INIT
      - WSB_PORT
+     - SERVER_NAME
      - RATELIMIT_STORAGE_URL
      - RATELIMIT_STRATEGY
      - RATELIMIT_ENABLED
