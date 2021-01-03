@@ -10,7 +10,7 @@ server {
 
 server {
     listen 80;
-    server_name cuplsensor.com;
+    server_name b.cuplsensor.com;
     
     location / {   
         try_files $uri @app; 
