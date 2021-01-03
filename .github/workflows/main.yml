@@ -61,6 +61,9 @@ jobs:
     runs-on: ubuntu-latest
     env: 
       CLUSTERNAME: githubcluster
+      SERVICENAME: ghproject3
+      CONFIGNAME: ${{ env.SERVICENAME }} + "-config"
+      REGION: us-east-1
     
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:          
@@ -74,7 +77,7 @@ jobs:
         run: |
           aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws configure set region us-east-1
+          aws configure set region ${{ env.REGION }}
           
       - name: Find out if the cluster is running.
         id: clustercheck
@@ -86,7 +89,7 @@ jobs:
           echo ::set-output name=nclusters::${NCLUSTERS}
           
       - name: Configure a cluster
-        run: ecs-cli configure --cluster ${{ env.CLUSTERNAME }} --default-launch-type FARGATE --config-name ghconfig3 --region us-east-1
+        run: ecs-cli configure --cluster ${{ env.CLUSTERNAME }} --default-launch-type FARGATE --config-name ghconfig3 --region ${{ env.REGION }}
         
       - name: Configure a profile
         run: ecs-cli configure profile --access-key ${{ secrets.AWS_ACCESS_KEY_ID }} --secret-key ${{ secrets.AWS_SECRET_ACCESS_KEY }} --profile-name tutorial-profile
@@ -109,9 +112,9 @@ jobs:
         if: steps.clustercheck.outputs.nclusters == 0
         run: |
           VPC_ID=${{ steps.startcluster.outputs.vpc_id }}
-          SGOUTPUT=$(aws ec2 describe-security-groups --filters Name=vpc-id,Values="$VPC_ID" --region us-east-1)
+          SGOUTPUT=$(aws ec2 describe-security-groups --filters Name=vpc-id,Values="$VPC_ID" --region ${{ env.REGION }})
           SG_ID=$(echo $SGOUTPUT | python3 -c "import sys, json; print(json.load(sys.stdin)['SecurityGroups'][0]['GroupId'])")
-          aws ec2 authorize-security-group-ingress --group-id $SG_ID --protocol tcp --port 80 --cidr 0.0.0.0/0 --region us-east-1
+          aws ec2 authorize-security-group-ingress --group-id $SG_ID --protocol tcp --port 80 --cidr 0.0.0.0/0 --region ${{ env.REGION }}
           echo "SG_ID=$SG_ID" >> $GITHUB_ENV
           
       # Get information on the running cluster
@@ -128,7 +131,7 @@ jobs:
       - name: Describe services under a given name.
         id: servicecheck
         run: | 
-          CLUSTERSERVICES=$(aws ecs describe-services --cluster ${{ env.CLUSTERNAME }} --service ghproject3)
+          CLUSTERSERVICES=$(aws ecs describe-services --cluster ${{ env.CLUSTERNAME }} --service ${{ env.SERVICENAME }})
           echo $CLUSTERSERVICES
           NSERVICES=$(echo $CLUSTERSERVICES | python3 -c "import sys, json; print(len(json.load(sys.stdin)['services']))")
           echo $NSERVICES
@@ -137,7 +140,7 @@ jobs:
       - name: List services and stop the first. This should be enough (I don't expect more than one service to be running).
         if: steps.servicecheck.outputs.nservices == 1
         run: | 
-          aws ecs delete-service --cluster ${{ env.CLUSTERNAME }} --service ghproject3 --force
+          aws ecs delete-service --cluster ${{ env.CLUSTERNAME }} --service ${{ env.SERVICENAME }} --force
           sleep 10
           
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
@@ -149,7 +152,7 @@ jobs:
       - name: Start a service
         run: |
           envsubst < ecs-params.yml.template > ecs-params.yml
-          ecs-cli compose --project-name ghproject3 --file docker-compose.aws.yml service up --create-log-groups --cluster-config ghconfig3 --ecs-profile tutorial-profile --target-group-arn $TARGET_GROUP_ARN --container-name nginx --container-port 80
+          ecs-cli compose --project-name ${{ env.SERVICENAME }} --file docker-compose.aws.yml service up --create-log-groups --cluster-config ghconfig3 --ecs-profile tutorial-profile --target-group-arn $TARGET_GROUP_ARN --container-name nginx --container-port 80
         env:
           SUBNET1: ${{env.SUBNET1}}
           SUBNET2: ${{env.SUBNET2}}
