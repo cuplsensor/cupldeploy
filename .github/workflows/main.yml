@@ -138,7 +138,7 @@ jobs:
         if: steps.servicecheck.outputs.nservices == 1
         run: | 
           aws ecs delete-service --cluster ${{ env.CLUSTERNAME }} --service ${{ env.SERVICENAME }} --force
-          sleep 120
+          sleep 300
           
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
