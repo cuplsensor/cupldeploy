@@ -101,6 +101,7 @@ jobs:
           SUBNET1=$(echo "$CLIOUTPUT" |grep "Subnet created" | sed -n 1p | cut -d':' -f 2)
           SUBNET2=$(echo "$CLIOUTPUT" |grep "Subnet created" | sed -n 2p | cut -d':' -f 2)
           echo ::set-output name=vpc_id::${VPC_ID}
+          echo "VPC_ID=$VPC_ID" >> $GITHUB_ENV
           echo "SUBNET1=$SUBNET1" >> $GITHUB_ENV
           echo "SUBNET2=$SUBNET2" >> $GITHUB_ENV
           
@@ -117,9 +118,11 @@ jobs:
       - name: Get VPC and subnets from secrets
         if: steps.clustercheck.outputs.nclusters == 1
         run: |
+          VPC_ID=${{ secrets.VPC_ID }}
           SUBNET1=${{ secrets.SUBNET1 }}
           SUBNET2=${{ secrets.SUBNET2 }}
           SG_ID=${{ secrets.SG_ID }}
+          echo "VPC_ID=$VPC_ID" >> $GITHUB_ENV
           echo "SUBNET1=$SUBNET1" >> $GITHUB_ENV
           echo "SUBNET2=$SUBNET2" >> $GITHUB_ENV
           echo "SG_ID=$SG_ID" >> $GITHUB_ENV          
@@ -142,6 +145,42 @@ jobs:
         with:
           submodules: false
           
+      # Find out if a target group exists
+      - name: Check if a target group exists for this service.
+        id: tgcheck
+        run: |
+          TGINFO=$(aws elbv2 describe-target-groups --names ${{ env.SERVICENAME }}_tg)
+          NTARGETGROUPS=$(echo $TGINFO | python3 -c "import sys, json; print(len(json.load(sys.stdin)['TargetGroups']))")
+          echo ::set-output name=tginfo::${TGINFO}
+          echo ::set-output name=ntargetgroups::${NTARGETGROUPS}
+          
+      # Create a target group
+      - name: Create a target group and extract its ARN.
+        if: steps.tgcheck.outputs.ntargetgroups == 0
+        run: |
+          TGOUTPUT=$(aws elbv2 create-target-group --name ${{ env.SERVICENAME }}_tg --protocol HTTP --port 80 --vpc-id ${{env.VPC_ID}} --health-check-protocol HTTP --health-check-port 80 --health-check-enabled)
+          echo $TGOUTPUT
+          TARGET_GROUP_ARN=$(echo $TGOUTPUT | python3 -c "import sys, json; print(json.load(sys.stdin)['TargetGroups'][0]['TargetGroupArn'])")
+          echo $TARGET_GROUP_ARN
+          echo "TARGET_GROUP_ARN=$TARGET_GROUP_ARN" >> $GITHUB_ENV
+          
+      # Get an ARN for the existing target group.
+      - name: Get an ARN for the existing target group.
+        if: steps.tgcheck.outputs.ntargetgroups != 0
+        run: |
+          TGOUTPUT = ${{ steps.tgcheck.outputs.tginfo }}
+          echo $TGOUTPUT
+          TARGET_GROUP_ARN=$(echo $TGOUTPUT | python3 -c "import sys, json; print(json.load(sys.stdin)['TargetGroups'][0]['TargetGroupArn'])")
+          echo $TARGET_GROUP_ARN
+          echo "TARGET_GROUP_ARN=$TARGET_GROUP_ARN" >> $GITHUB_ENV
+          
+      # Get listeners for the load balancer.
+      - name: Add a rule to a load balancer listener. This expects that (1) an application load balancer has been set up and (2) and HTTPS listener has been added. 
+        run: |
+          PRIORITY=$(1 + $RANDOM % 10000)
+          RULEOUTPUT=$(aws elbv2 create-rule --listener-arn ${{ secrets.HTTPS_LISTENER_ARN }} --priority $PRIORITY --conditions '{"Field":"path-pattern","PathPatternConfig":{"Values": ["/${{ env.SERVICENAME }}/*"]}}' --actions Type=forward,TargetGroupArn=${{ env.TARGET_GROUP_ARN }})
+          echo $RULEOUTPUT
+          
       # Use the docker-compose file to define a service. STEP5. https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-cli-tutorial-fargate.html
       - name: Start a service
         run: |
@@ -160,7 +199,7 @@ jobs:
           DB_USER: ${{ secrets.DB_USER }}
           DB_NAME: ${{ secrets.DB_NAME }}
           DB_HOST: ${{ secrets.DB_HOST }}
-          TARGET_GROUP_ARN: ${{ secrets.TARGET_GROUP_ARN }}
+          TARGET_GROUP_ARN: ${{ env.TARGET_GROUP_ARN }}
           WSB_HOST: localhost
           WSB_PORT: 5001 
           DROP_ON_INIT: False
