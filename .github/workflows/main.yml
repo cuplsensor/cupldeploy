@@ -61,7 +61,7 @@ jobs:
     runs-on: ubuntu-latest
     env: 
       CLUSTERNAME: githubcluster
-      SERVICENAME: ghproject3
+      SERVICENAME: ghproject4
       REGION: us-east-1
     
     # Steps represent a sequence of tasks that will be executed as part of the job
