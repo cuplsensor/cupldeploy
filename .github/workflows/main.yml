@@ -61,7 +61,7 @@ jobs:
     runs-on: ubuntu-latest
     env: 
       CLUSTERNAME: githubcluster
-      SERVICENAME: ghproject3
+      SERVICENAME: ghproject4
       REGION: us-east-1
     
     # Steps represent a sequence of tasks that will be executed as part of the job
@@ -82,9 +82,7 @@ jobs:
         id: clustercheck
         run: | 
           CLUSTERINFO=$(aws ecs describe-clusters --cluster ${{ env.CLUSTERNAME }})
-          echo $CLUSTERINFO
           NCLUSTERS=$(echo $CLUSTERINFO | python3 -c "import sys, json; print(len(json.load(sys.stdin)['clusters']))")
-          echo $NCLUSTERS
           echo ::set-output name=nclusters::${NCLUSTERS}
           
       - name: Configure a cluster
@@ -103,7 +101,6 @@ jobs:
           SUBNET1=$(echo "$CLIOUTPUT" |grep "Subnet created" | sed -n 1p | cut -d':' -f 2)
           SUBNET2=$(echo "$CLIOUTPUT" |grep "Subnet created" | sed -n 2p | cut -d':' -f 2)
           echo ::set-output name=vpc_id::${VPC_ID}
-          echo $CLIOUTPUT
           echo "SUBNET1=$SUBNET1" >> $GITHUB_ENV
           echo "SUBNET2=$SUBNET2" >> $GITHUB_ENV
           
@@ -131,9 +128,7 @@ jobs:
         id: servicecheck
         run: | 
           CLUSTERSERVICES=$(aws ecs describe-services --cluster ${{ env.CLUSTERNAME }} --service ${{ env.SERVICENAME }})
-          echo $CLUSTERSERVICES
           NSERVICES=$(echo $CLUSTERSERVICES | python3 -c "import sys, json; print(len(json.load(sys.stdin)['services']))")
-          echo $NSERVICES
           echo ::set-output name=nservices::${NSERVICES}
         
       - name: List services and stop the first. This should be enough (I don't expect more than one service to be running).
