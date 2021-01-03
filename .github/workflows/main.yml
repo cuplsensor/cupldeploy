@@ -151,7 +151,8 @@ jobs:
         run: |
           TGOUTPUT=$(aws elbv2 describe-target-groups --names ${{ env.SERVICENAME }}-tg)
           echo $TGOUTPUT
-          echo "TGOUTPUT=$TGOUTPUT" >> $GITHUB_ENV
+          TARGET_GROUP_ARN=$(echo $TGOUTPUT | python3 -c "import sys, json; print(json.load(sys.stdin)['TargetGroups'][0]['TargetGroupArn'])")
+          echo "TARGET_GROUP_ARN=$TARGET_GROUP_ARN" >> $GITHUB_ENV
           
       # Create a target group
       - name: Create a target group and extract its ARN.
@@ -159,17 +160,8 @@ jobs:
         run: |
           TGOUTPUT=$(aws elbv2 create-target-group --name ${{ env.SERVICENAME }}-tg --protocol HTTP --port 80 --vpc-id ${{env.VPC_ID}} --health-check-protocol HTTP --health-check-port 80 --health-check-enabled)
           echo $TGOUTPUT
-          echo "TGOUTPUT=$TGOUTPUT" >> $GITHUB_ENV
-          
-      # Get an ARN for the existing target group.
-      - name: Get an ARN for the existing target group.
-        run: |
-          echo $TGOUTPUT
           TARGET_GROUP_ARN=$(echo $TGOUTPUT | python3 -c "import sys, json; print(json.load(sys.stdin)['TargetGroups'][0]['TargetGroupArn'])")
-          echo $TARGET_GROUP_ARN
           echo "TARGET_GROUP_ARN=$TARGET_GROUP_ARN" >> $GITHUB_ENV
-        env:
-          TGOUTPUT: ${{env.TGOUTPUT}}
           
       # Get listeners for the load balancer.
       - name: Add a rule to a load balancer listener. This expects that (1) an application load balancer has been set up and (2) and HTTPS listener has been added. 
