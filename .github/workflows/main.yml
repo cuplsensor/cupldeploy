@@ -125,20 +125,7 @@ jobs:
           echo "VPC_ID=$VPC_ID" >> $GITHUB_ENV
           echo "SUBNET1=$SUBNET1" >> $GITHUB_ENV
           echo "SUBNET2=$SUBNET2" >> $GITHUB_ENV
-          echo "SG_ID=$SG_ID" >> $GITHUB_ENV          
-          
-      - name: Describe services under a given name.
-        id: servicecheck
-        run: | 
-          CLUSTERSERVICES=$(aws ecs describe-services --cluster ${{ env.CLUSTERNAME }} --service ${{ env.SERVICENAME }})
-          NSERVICES=$(echo $CLUSTERSERVICES | python3 -c "import sys, json; print(len(json.load(sys.stdin)['services']))")
-          echo ::set-output name=nservices::${NSERVICES}
-        
-      - name: List services and stop the first. This should be enough (I don't expect more than one service to be running).
-        if: steps.servicecheck.outputs.nservices == 1
-        run: | 
-          aws ecs delete-service --cluster ${{ env.CLUSTERNAME }} --service ${{ env.SERVICENAME }} --force
-          sleep 300
+          echo "SG_ID=$SG_ID" >> $GITHUB_ENV
           
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
@@ -165,7 +152,7 @@ jobs:
       - name: Start a service
         run: |
           envsubst < ecs-params.yml.template > ecs-params.yml
-          ecs-cli compose --project-name ${{ env.SERVICENAME }} --file docker-compose.aws.yml service up --create-log-groups --cluster-config ${{ env.SERVICENAME }}-config --ecs-profile tutorial-profile --target-group-arn $TARGET_GROUP_ARN --container-name nginx --container-port 80
+          ecs-cli compose --project-name ${{ env.SERVICENAME }} --file docker-compose.aws.yml service up --create-log-groups --cluster-config ${{ env.SERVICENAME }}-config --force-deployment --ecs-profile tutorial-profile --target-group-arn $TARGET_GROUP_ARN --container-name nginx --container-port 80
         env:
           SUBNET1: ${{env.SUBNET1}}
           SUBNET2: ${{env.SUBNET2}}
