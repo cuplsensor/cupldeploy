@@ -136,10 +136,10 @@ jobs:
       - name: Check if a target group exists for this service. Create it if not.
         id: tgcheck
         run: |
-          TGEXISTS=0
+          TGEXISTS=$(aws elbv2 describe-target-groups --names ${{ env.SERVICENAME }}-tg) || echo 0
+          echo $TGEXISTS
           TGOUTPUT=$(aws elbv2 describe-target-groups --names ${{ env.SERVICENAME }}-tg && TGEXISTS=1 || aws elbv2 create-target-group --target-type ip --name ${{ env.SERVICENAME }}-tg --protocol HTTP --port 80 --vpc-id ${{env.VPC_ID}} --health-check-protocol HTTP --health-check-port 80 --health-check-enabled)
           echo $TGOUTPUT
-          echo $TGEXISTS
           TARGET_GROUP_ARN=$(echo $TGOUTPUT | python3 -c "import sys, json; print(json.load(sys.stdin)['TargetGroups'][0]['TargetGroupArn'])")
           echo ::set-output name=tgexists::${TGEXISTS}
           echo "TARGET_GROUP_ARN=$TARGET_GROUP_ARN" >> $GITHUB_ENV
