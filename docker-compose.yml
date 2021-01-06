@@ -29,21 +29,21 @@ services:
    depends_on:
      - redis_r1
    
- nginx:
-   restart: 'on-failure'
-   build: ./cupldeploy_nginx/
+ nginx2:
+   restart: unless-stopped
+   build:
+     context: ./cupldeploy_nginx
+     dockerfile: Dockerfile
    environment:
-     - WSB_HOST
-     - WSB_PORT
-     - NGINX_PORT=80
-     - SERVER_NAME
+     - CERTBOT_EMAIL=malcolm.mackay121@gmail.com
+     - IS_STAGING=True
    ports:
-     - 80:80
-     - 443:443
+     - 80:80/tcp
+     - 443:443/tcp
    volumes:
-     - nginx-letsencrypt:/etc/letsencrypt
+     - letsencrypt:/etc/letsencrypt
    depends_on:
      - cuplbackend
 
 volumes:
- nginx-letsencrypt:
+ letsencrypt:
