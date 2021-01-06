@@ -1,24 +1,16 @@
 FROM nginx:latest
 
 # Nginx will listen on this port
-EXPOSE 80
-
-# Remove the default config file that
-# /etc/nginx/nginx.conf includes
-#RUN rm /etc/nginx/conf.d/default.conf
+EXPOSE $NGINX_PORT
 
 COPY ./templates /etc/nginx/templates
 
 # Install certbot
-#RUN apt-get -y update
-#RUN apt-get -y install certbot python-certbot-nginx
+RUN apt-get -y update
+RUN apt-get -y install certbot python-certbot-nginx
 
-#COPY docker-entrypoint.sh /usr/local/bin/
-#RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+COPY certbot.sh /docker-entrypoint.d/
+RUN chmod +x /docker-entrypoint.d/certbot.sh
 
-#COPY certbot-renew /etc/cron.d/
-#RUN chmod +x /etc/cron.d/certbot-renew
-
-#COPY wsbackend.conf /etc/nginx/conf.d
-
-#ENTRYPOINT ["docker-entrypoint.sh"]
+COPY certbot-renew /etc/cron.d/
+RUN chmod +x /etc/cron.d/certbot-renew
