@@ -31,7 +31,12 @@ jobs:
         run: |
           mkdir ~/.ssh
           echo "${{ secrets.CUPL_DEPLOY_LATEST_KEY }}" | tr -d '\r' >> ~/.ssh/id_rsa
+          
+      - name: Add a docker context
+        run: |
+          docker context create remote --docker "host=ssh://${{ secrets.CUPL_DEPLOY_LATEST_USERNAME }}@${{ secrets.CUPL_DEPLOY_LATEST_HOST }}"
           docker context ls
+          
 
           
       # Use the docker-compose file to define a service. STEP5. https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-cli-tutorial-fargate.html
