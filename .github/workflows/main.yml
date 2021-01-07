@@ -55,7 +55,7 @@ jobs:
             cupl/cupldeploy_nginx:latest
             ${{ steps.prep.outputs.tag }}
      
-  create_cluster:
+  push_to_droplet:
     #needs: [build_nginx_image]
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
@@ -67,90 +67,11 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:          
       # Sets up the ec2-cli. This is needed for deploying the backend to Amazon fargate.
-      - uses: marocchino/setup-ecs-cli@v1
-        with:
-          version: "v1.18.0"
-      
-        
-      - name: Configure the aws cli
+      - name: Add private key
         run: |
-          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws configure set region ${{ env.REGION }}
-          
-      - name: Find out if the cluster is running.
-        id: clustercheck
-        run: | 
-          CLUSTERINFO=$(aws ecs describe-clusters --cluster ${{ env.CLUSTERNAME }})
-          NCLUSTERS=$(echo $CLUSTERINFO | python3 -c "import sys, json; print(len(json.load(sys.stdin)['clusters']))")
-          echo ::set-output name=nclusters::${NCLUSTERS}
-          
-      - name: Configure a cluster
-        run: ecs-cli configure --cluster ${{ env.CLUSTERNAME }} --default-launch-type FARGATE --config-name ${{ env.SERVICENAME }}-config --region ${{ env.REGION }}
-        
-      - name: Configure a profile
-        run: ecs-cli configure profile --access-key ${{ secrets.AWS_ACCESS_KEY_ID }} --secret-key ${{ secrets.AWS_SECRET_ACCESS_KEY }} --profile-name tutorial-profile
-          
-      # Run a set of commands with the ec2-cli to start the cluster.
-      - name: Start the cluster
-        id: startcluster
-        if: steps.clustercheck.outputs.nclusters == 0
-        run: |
-          CLIOUTPUT=$(ecs-cli up --cluster-config ${{ env.SERVICENAME }}-config --force --ecs-profile tutorial-profile)
-          VPC_ID=$(echo "$CLIOUTPUT" |grep "VPC" | cut -d':' -f 2)
-          SUBNET1=$(echo "$CLIOUTPUT" |grep "Subnet created" | sed -n 1p | cut -d':' -f 2)
-          SUBNET2=$(echo "$CLIOUTPUT" |grep "Subnet created" | sed -n 2p | cut -d':' -f 2)
-          echo ::set-output name=vpc_id::${VPC_ID}
-          echo "VPC_ID=$VPC_ID" >> $GITHUB_ENV
-          echo "SUBNET1=$SUBNET1" >> $GITHUB_ENV
-          echo "SUBNET2=$SUBNET2" >> $GITHUB_ENV
-          
-      - name: Get the security group ID
-        if: steps.clustercheck.outputs.nclusters == 0
-        run: |
-          VPC_ID=${{ steps.startcluster.outputs.vpc_id }}
-          SGOUTPUT=$(aws ec2 describe-security-groups --filters Name=vpc-id,Values="$VPC_ID" --region ${{ env.REGION }})
-          SG_ID=$(echo $SGOUTPUT | python3 -c "import sys, json; print(json.load(sys.stdin)['SecurityGroups'][0]['GroupId'])")
-          aws ec2 authorize-security-group-ingress --group-id $SG_ID --protocol tcp --port 80 --cidr 0.0.0.0/0 --region ${{ env.REGION }}
-          echo "SG_ID=$SG_ID" >> $GITHUB_ENV
-          
-      # Get information on the running cluster
-      - name: Get VPC and subnets from secrets
-        if: steps.clustercheck.outputs.nclusters == 1
-        run: |
-          VPC_ID=${{ secrets.VPC_ID }}
-          SUBNET1=${{ secrets.SUBNET1 }}
-          SUBNET2=${{ secrets.SUBNET2 }}
-          SG_ID=${{ secrets.SG_ID }}
-          echo "VPC_ID=$VPC_ID" >> $GITHUB_ENV
-          echo "SUBNET1=$SUBNET1" >> $GITHUB_ENV
-          echo "SUBNET2=$SUBNET2" >> $GITHUB_ENV
-          echo "SG_ID=$SG_ID" >> $GITHUB_ENV
-          
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
-        with:
-          submodules: false
-          
-      # Find out if a target group exists
-      - name: Check if a target group exists for this service. Create it if not.
-        id: tgcheck
-        run: |
-          TGEXISTS=$(aws elbv2 describe-target-groups --names ${{ env.SERVICENAME }}-tg) || echo 0
-          echo $TGEXISTS
-          TGOUTPUT=$(aws elbv2 describe-target-groups --names ${{ env.SERVICENAME }}-tg || aws elbv2 create-target-group --target-type ip --name ${{ env.SERVICENAME }}-tg --protocol HTTP --port 80 --vpc-id ${{env.VPC_ID}} --health-check-protocol HTTP --health-check-port 80 --health-check-enabled)
-          echo $TGOUTPUT
-          TARGET_GROUP_ARN=$(echo $TGOUTPUT | python3 -c "import sys, json; print(json.load(sys.stdin)['TargetGroups'][0]['TargetGroupArn'])")
-          echo ::set-output name=tgexists::${TGEXISTS}
-          echo "TARGET_GROUP_ARN=$TARGET_GROUP_ARN" >> $GITHUB_ENV
-          
-      # Get listeners for the load balancer.
-      - name: Add a rule to a load balancer listener. This expects that (1) an application load balancer has been set up and (2) and HTTPS listener has been added. 
-        if: steps.tgcheck.outputs.tgexists == 0
-        run: |
-          PRIORITY=$(echo $RANDOM)
-          RULEOUTPUT=$(aws elbv2 create-rule --listener-arn ${{ secrets.HTTPS_LISTENER_ARN }} --priority $PRIORITY --conditions '{"Field":"path-pattern","PathPatternConfig":{"Values": ["/${{ env.SERVICENAME }}/*"]}}' --actions Type=forward,TargetGroupArn=${{ env.TARGET_GROUP_ARN }})
-          echo $RULEOUTPUT
+          echo "${{ secrets.CUPL_DEPLOY_LATEST_KEY }}" | tr -d '\r' | ssh-add - > /dev/null
+          docker context ls
+
           
       # Use the docker-compose file to define a service. STEP5. https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-cli-tutorial-fargate.html
       - name: Start a service
@@ -181,7 +102,7 @@ jobs:
 
   # This workflow contains a single job called "build"
   build:
-    needs: [create_cluster]
+    needs: [push_to_droplet]
     
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
