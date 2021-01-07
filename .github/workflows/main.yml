@@ -40,7 +40,8 @@ jobs:
       # Use the docker-compose file to define a service. STEP5. https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-cli-tutorial-fargate.html
       - name: Deploy with docker-compose
         run: |
-          docker-compose ‐‐context remote up -d
+          docker-compose -v
+          #docker-compose ‐‐context remote up -d
         env:
           ADMINAPI_CLIENTSECRET: ${{ secrets.ADMINAPI_CLIENTSECRET }}
           TAGTOKEN_CLIENTSECRET: ${{ secrets.TAGTOKEN_CLIENTSECRET }}
