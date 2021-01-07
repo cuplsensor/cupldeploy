@@ -14,47 +14,7 @@ on:
   workflow_dispatch:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
-jobs:
-  # Derived from https://github.com/marketplace/actions/build-and-push-docker-images
-  build_nginx_image:
-    runs-on: ubuntu-latest
-    
-    # Steps represent a sequence of tasks that will be executed as part of the job
-    steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
-        with:
-          submodules: false 
-      
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
-      
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
-          
-      - name: Login to DockerHub
-        uses: docker/login-action@v1
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-          
-      - name: Prepare tag name
-        id: prep
-        run: |
-          TAG="cupl/cupldeploy_nginx:${GITHUB_SHA::8}"
-          echo ::set-output name=tag::${TAG}
-
-      - name: Build and push
-        id: docker_build
-        uses: docker/build-push-action@v2
-        with:
-          context: ./cupldeploy_nginx
-          file: ./cupldeploy_nginx/Dockerfile
-          push: true
-          tags: |
-            cupl/cupldeploy_nginx:latest
-            ${{ steps.prep.outputs.tag }}
-     
+jobs:     
   push_to_droplet:
     #needs: [build_nginx_image]
     # The type of runner that the job will run on
@@ -69,7 +29,7 @@ jobs:
       # Sets up the ec2-cli. This is needed for deploying the backend to Amazon fargate.
       - name: Add private key
         run: |
-          echo "${{ secrets.CUPL_DEPLOY_LATEST_KEY }}" | tr -d '\r' | ssh-add - > /dev/null
+          echo "${{ secrets.CUPL_DEPLOY_LATEST_KEY }}" | tr -d '\r' >> ~/.ssh/id_rsa
           docker context ls
 
           
