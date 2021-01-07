@@ -44,6 +44,7 @@ services:
      - letsencrypt:/etc/letsencrypt
    depends_on:
      - cuplbackend
+     - redis_r1
 
 volumes:
  letsencrypt:
