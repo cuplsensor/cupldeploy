@@ -41,7 +41,8 @@ jobs:
       - name: Deploy with docker-compose
         run: |
           docker-compose -v
-          #docker-compose ‐‐context remote up -d
+          docker context use remote
+          docker-compose up -d
         env:
           ADMINAPI_CLIENTSECRET: ${{ secrets.ADMINAPI_CLIENTSECRET }}
           TAGTOKEN_CLIENTSECRET: ${{ secrets.TAGTOKEN_CLIENTSECRET }}
