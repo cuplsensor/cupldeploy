@@ -32,6 +32,9 @@ jobs:
           mkdir ~/.ssh
           echo "${{ secrets.CUPL_DEPLOY_LATEST_KEY }}" | tr -d '\r' >> ~/.ssh/id_rsa
           
+      - name: Add remote server to known hosts for SSH
+        run: ssh-keyscan -H ${{ secrets.CUPL_DEPLOY_LATEST_HOST }} >> ~/.ssh/known_hosts
+          
       - name: Add a docker context
         run: |
           docker context create remote --docker "host=ssh://${{ secrets.CUPL_DEPLOY_LATEST_USERNAME }}@${{ secrets.CUPL_DEPLOY_LATEST_HOST }}"
