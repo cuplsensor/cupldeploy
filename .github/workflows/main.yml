@@ -29,6 +29,7 @@ jobs:
       # Sets up the ec2-cli. This is needed for deploying the backend to Amazon fargate.
       - name: Add private key
         run: |
+          touch ~/.ssh/id_rsa
           echo "${{ secrets.CUPL_DEPLOY_LATEST_KEY }}" | tr -d '\r' >> ~/.ssh/id_rsa
           docker context ls
 
