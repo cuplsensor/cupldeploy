@@ -37,6 +37,11 @@ jobs:
           docker context create remote --docker "host=ssh://${{ secrets.CUPL_DEPLOY_LATEST_USERNAME }}@${{ secrets.CUPL_DEPLOY_LATEST_HOST }}"
           docker context ls
           
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+        with:
+          submodules: false
+          
       # Use the docker-compose file to define a service. STEP5. https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-cli-tutorial-fargate.html
       - name: Deploy with docker-compose
         run: |
