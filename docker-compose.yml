@@ -36,7 +36,7 @@ services:
      - CERTBOT_EMAIL=malcolm.mackay121@gmail.com
      - ENVSUBST_VARS=SERVER_NAME WSB_PORT
      - SERVER_NAME
-     - WSB_PORT=5002
+     - WSB_PORT
    ports:
      - 80:80/tcp
      - 443:443/tcp
