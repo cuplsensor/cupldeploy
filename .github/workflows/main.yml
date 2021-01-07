@@ -50,7 +50,7 @@ jobs:
         run: |
           docker-compose -v
           docker context use remote
-          docker-compose up -d
+          docker-compose up --build -d
         env:
           ADMINAPI_CLIENTSECRET: ${{ secrets.ADMINAPI_CLIENTSECRET }}
           TAGTOKEN_CLIENTSECRET: ${{ secrets.TAGTOKEN_CLIENTSECRET }}
