@@ -37,28 +37,21 @@ jobs:
           docker context create remote --docker "host=ssh://${{ secrets.CUPL_DEPLOY_LATEST_USERNAME }}@${{ secrets.CUPL_DEPLOY_LATEST_HOST }}"
           docker context ls
           
-
-          
       # Use the docker-compose file to define a service. STEP5. https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-cli-tutorial-fargate.html
-      - name: Start a service
+      - name: Deploy with docker-compose
         run: |
-          envsubst < ecs-params.yml.template > ecs-params.yml
-          ecs-cli compose --project-name ${{ env.SERVICENAME }} --file docker-compose.aws.yml service up --timeout 10 --create-log-groups --cluster-config ${{ env.SERVICENAME }}-config --force-deployment --ecs-profile tutorial-profile --target-group-arn $TARGET_GROUP_ARN --container-name nginx --container-port 80
+          docker-compose ‐‐context remote up -d
         env:
-          SUBNET1: ${{env.SUBNET1}}
-          SUBNET2: ${{env.SUBNET2}}
-          SG_ID: ${{env.SG_ID}}
           ADMINAPI_CLIENTSECRET: ${{ secrets.ADMINAPI_CLIENTSECRET }}
           TAGTOKEN_CLIENTSECRET: ${{ secrets.TAGTOKEN_CLIENTSECRET }}
           HASHIDS_SALT: ${{ secrets.HASHIDS_SALT }}
           CSRF_SESSION_KEY: ${{ secrets.CSRF_SESSION_KEY }}
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
-          SERVER_NAME: b.cuplsensor.com
+          SERVER_NAME: latest.cuplsensor.com
           DB_PASS: ${{ secrets.DB_PASS }}
           DB_USER: ${{ secrets.DB_USER }}
           DB_NAME: ${{ secrets.DB_NAME }}
           DB_HOST: ${{ secrets.DB_HOST }}
-          TARGET_GROUP_ARN: ${{ env.TARGET_GROUP_ARN }}
           WSB_HOST: localhost
           WSB_PORT: 5001 
           DROP_ON_INIT: False
