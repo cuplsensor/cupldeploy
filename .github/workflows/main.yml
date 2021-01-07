@@ -18,7 +18,7 @@ jobs:
   push_to_droplet:
     #needs: [build_nginx_image]
     # The type of runner that the job will run on
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     env: 
       CLUSTERNAME: githubcluster
       SERVICENAME: ghproject4
