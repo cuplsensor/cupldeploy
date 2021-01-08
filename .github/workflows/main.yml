@@ -62,7 +62,6 @@ jobs:
           DB_USER: ${{ secrets.DB_USER }}
           DB_NAME: ${{ secrets.DB_NAME }}
           DB_HOST: ${{ secrets.DB_HOST }}
-          WSB_HOST: localhost
           WSB_PORT: 5001 
           DROP_ON_INIT: False
           RATELIMIT_STORAGE_URL: ${{ secrets.RATELIMIT_STORAGE_URL }}
