@@ -62,7 +62,7 @@ jobs:
           DB_HOST: ${{ secrets.DB_HOST }}
           WSB_PORT: 5001 
           DROP_ON_INIT: False
-          RATELIMIT_STORAGE_URL: ${{ secrets.RATELIMIT_STORAGE_URL }}
+          RATELIMIT_STORAGE_URL: ${{ env.RATELIMIT_STORAGE_URL }}
           RATELIMIT_STRATEGY: ${{ secrets.RATELIMIT_STRATEGY }}
           RATELIMIT_ENABLED: ${{ secrets.RATELIMIT_ENABLED }}
 
