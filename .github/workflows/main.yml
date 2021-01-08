@@ -20,9 +20,7 @@ jobs:
     # The type of runner that the job will run on
     runs-on: ubuntu-20.04
     env: 
-      CLUSTERNAME: githubcluster
-      SERVICENAME: ghproject4
-      REGION: us-east-1
+      RATELIMIT_STORAGE_URL: redis://redis_r1:6379
     
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:          
