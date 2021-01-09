@@ -1,5 +1,3 @@
-# This is a basic workflow to help you get started with Actions
-
 name: CI
 
 # Controls when the action will run. 
@@ -15,60 +13,32 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:     
-  push_to_droplet:
-    #needs: [build_nginx_image]
-    # The type of runner that the job will run on
+  backend_to_droplet:
     runs-on: ubuntu-20.04
-    env: 
-      RATELIMIT_STORAGE_URL: redis://redis_r1:6379
-    
-    # Steps represent a sequence of tasks that will be executed as part of the job
+    name: Uses docker-compose over SSH to run cuplbackend on a droplet.
     steps:          
       # Sets up the ec2-cli. This is needed for deploying the backend to Amazon fargate.
-      - name: Add private key
-        run: |
-          mkdir ~/.ssh
-          echo "${{ secrets.CUPL_DEPLOY_LATEST_KEY }}" | tr -d '\r' >> ~/.ssh/id_rsa
-          
-      - name: Add remote server to known hosts for SSH
-        run: ssh-keyscan -H ${{ secrets.CUPL_DEPLOY_LATEST_HOST }} >> ~/.ssh/known_hosts
-          
-      - name: Add a docker context
-        run: |
-          docker context create remote --docker "host=ssh://${{ secrets.CUPL_DEPLOY_LATEST_USERNAME }}@${{ secrets.CUPL_DEPLOY_LATEST_HOST }}"
-          docker context ls
-          
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
+      - uses: cuplsensor/deploy-backend-action
         with:
-          submodules: false
-          
-      # Use the docker-compose file to define a service. STEP5. https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-cli-tutorial-fargate.html
-      - name: Deploy with docker-compose
-        run: |
-          docker-compose -v
-          docker context use remote
-          docker-compose up --build -d
-        env:
-          ADMINAPI_CLIENTSECRET: ${{ secrets.ADMINAPI_CLIENTSECRET }}
-          TAGTOKEN_CLIENTSECRET: ${{ secrets.TAGTOKEN_CLIENTSECRET }}
-          HASHIDS_SALT: ${{ secrets.HASHIDS_SALT }}
-          CSRF_SESSION_KEY: ${{ secrets.CSRF_SESSION_KEY }}
-          SECRET_KEY: ${{ secrets.SECRET_KEY }}
-          SERVER_NAME: latest.b.cupl.uk
-          DB_PASS: ${{ secrets.DB_PASS }}
-          DB_USER: ${{ secrets.DB_USER }}
-          DB_NAME: ${{ secrets.DB_NAME }}
-          DB_HOST: ${{ secrets.DB_HOST }}
-          WSB_PORT: 5001 
-          DROP_ON_INIT: False
-          RATELIMIT_STORAGE_URL: ${{ env.RATELIMIT_STORAGE_URL }}
-          RATELIMIT_STRATEGY: ${{ secrets.RATELIMIT_STRATEGY }}
-          RATELIMIT_ENABLED: ${{ secrets.RATELIMIT_ENABLED }}
+          # DigitalOcean droplet parameters.
+          droplet_username:           ${{ secrets.CUPL_DEPLOY_LATEST_USERNAME }}
+          droplet_ssh_private_key:    ${{ secrets.CUPL_DEPLOY_LATEST_KEY }}
+          droplet_host:               ${{ secrets.CUPL_DEPLOY_LATEST_HOST }}
+          # Database connection for cuplbackend.
+          db_user:                    ${{ secrets.DB_USER }}
+          db_pass:                    ${{ secrets.DB_PASS }}
+          db_name:                    ${{ secrets.DB_NAME }}
+          db_host:                    ${{ secrets.DB_HOST }}
+          # Randomised strings for cuplbackend.
+          adminapi_clientsecret:      ${{ secrets.ADMINAPI_CLIENTSECRET }}
+          tagtoken_clientsecret:      ${{ secrets.TAGTOKEN_CLIENTSECRET }}
+          hashids_salt:               ${{ secrets.HASHIDS_SALT }}
+          csrf_session_key:           ${{ secrets.CSRF_SESSION_KEY }}
+          secret_key:                 ${{ secrets.SECRET_KEY }}        
 
   # This workflow contains a single job called "build"
   build:
-    needs: [push_to_droplet]
+    needs: [backend_to_droplet]
     
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
