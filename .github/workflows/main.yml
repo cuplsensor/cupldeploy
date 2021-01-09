@@ -17,7 +17,10 @@ jobs:
     runs-on: ubuntu-20.04
     name: Uses docker-compose over SSH to run cuplbackend on a droplet.
     steps:          
-      # Sets up the ec2-cli. This is needed for deploying the backend to Amazon fargate.
+      # Check out the repository but exclude submodules
+      - uses: actions/checkout@v2
+        with:
+          submodules: false
       - uses: cuplsensor/deploy-backend-action@v1
         with:
           # DigitalOcean droplet parameters.
