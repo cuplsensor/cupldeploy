@@ -37,7 +37,7 @@ jobs:
       - name: Test step
         run: |
           echo "action_state=yellow" >> $GITHUB_ENV
-          console.log('Waiting ${action_state} milliseconds ...')
+          echo "${action_state}"
       
       # Check out the repository but exclude submodules
       - uses: actions/checkout@v2
