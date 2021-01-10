@@ -37,7 +37,7 @@ jobs:
       - name: Test step
         run: |
           echo ENVNAME=${{ needs.envname_job.outputs.envname }}
-          echo "DROPLET_USERNAME_LOC=$(ENVNAME)_DROPLET_USERNAME" >> $GITHUB_ENV
+          echo "DROPLET_USERNAME_LOC=${ENVNAME}_DROPLET_USERNAME" >> $GITHUB_ENV
           echo $DROPLET_USERNAME_LOC
       
       # Check out the repository but exclude submodules
