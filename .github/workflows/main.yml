@@ -27,6 +27,7 @@ jobs:
       PTR_HASHIDS_SALT:             ${{ steps.set_pointers.outputs.PTR_HASHIDS_SALT }}
       PTR_CSRF_SESSION_KEY:         ${{ steps.set_pointers.outputs.PTR_CSRF_SESSION_KEY }}
       PTR_SECRET_KEY:               ${{ steps.set_pointers.outputs.PTR_SECRET_KEY }}
+      PTR_AWS_CLOUDFRONT_DIST_ID:   ${{ steps.set_pointers.outputs.PTR_AWS_CLOUDFRONT_DIST_ID }}
     steps:
       - name: Set environment based on event_name.
         id: set_distname
@@ -51,6 +52,7 @@ jobs:
           echo "::set-output name=PTR_HASHIDS_SALT::${DISTNAME_UC}_HASHIDS_SALT"
           echo "::set-output name=PTR_CSRF_SESSION_KEY::${DISTNAME_UC}_CSRF_SESSION_KEY"
           echo "::set-output name=PTR_SECRET_KEY::${DISTNAME_UC}_SECRET_KEY"
+          echo "::set-output name=PTR_AWS_CLOUDFRONT_DIST_ID::${DISTNAME_UC}_AWS_CLOUDFRONT_DIST_ID"
           
       - name: Print a list of expected secrets.
         run: |
@@ -63,6 +65,7 @@ jobs:
           echo ${{ steps.set_pointers.outputs.PTR_HASHIDS_SALT }}
           echo ${{ steps.set_pointers.outputs.PTR_CSRF_SESSION_KEY }}
           echo ${{ steps.set_pointers.outputs.PTR_SECRET_KEY }}
+          echo ${{ steps.set_pointers.outputs.PTR_AWS_CLOUDFRONT_DIST_ID }}
         
   backend_to_droplet:
     runs-on: ubuntu-20.04
@@ -131,6 +134,6 @@ jobs:
           aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws configure set region us-east-1
-          aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_CLOUDFRONT_DIST_ID }} --paths "/*"
+          aws cloudfront create-invalidation --distribution-id ${{ secrets[needs.distname_job.outputs.PTR_AWS_CLOUDFRONT_DIST_ID] }} --paths "/*"
           
           
