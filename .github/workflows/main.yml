@@ -20,6 +20,7 @@ jobs:
     steps:
       - name: Set environment based on event_name. 
         run: |
+          echo "::set-output name=action_fruit::strawberry"
           ENVNAME=${{ github.event.release.tag_name }} || "latest"
           echo $ENVNAME
         
