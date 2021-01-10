@@ -36,7 +36,7 @@ jobs:
     steps:
       - name: Test step
         run: |
-          ENVNAME_UC=echo ${{ needs.envname_job.outputs.envname }} | tr [a-z] [A-Z]
+          ENVNAME_UC=$(echo ${{ needs.envname_job.outputs.envname }} | tr [a-z] [A-Z])
           PTR_DROPLET_USERNAME=${ENVNAME_UC}_DROPLET_USERNAME
           echo $PTR_DROPLET_USERNAME
       
