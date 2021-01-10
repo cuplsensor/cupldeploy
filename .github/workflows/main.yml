@@ -23,7 +23,6 @@ jobs:
       - name: Set environment based on event_name.
         id: set_envname
         run: |
-          run: |
           if ${{ github.event_name == 'release' }}; then
               echo "::set-output name=envname::${{ github.event.release.tag_name }}"
           else
