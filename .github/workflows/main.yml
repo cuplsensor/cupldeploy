@@ -38,7 +38,7 @@ jobs:
         run: |
           echo ENVNAME=${{ needs.envname_job.outputs.envname }}
           echo "DROPLET_USERNAME_LOC=${ENVNAME}_DROPLET_USERNAME" >> $GITHUB_ENV
-          echo $DROPLET_USERNAME_LOC
+          echo ${{ env.DROPLET_USERNAME_LOC }}
       
       # Check out the repository but exclude submodules
       - uses: actions/checkout@v2
