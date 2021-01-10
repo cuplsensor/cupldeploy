@@ -116,7 +116,7 @@ jobs:
           npm install
           CI=false npm run build
         env: 
-          REACT_APP_WSB_ORIGIN: ${{ secrets[needs.distname_job.outputs.PTR_DROPLET_HOST] }}
+          REACT_APP_WSB_ORIGIN: https://${{ secrets[needs.distname_job.outputs.PTR_DROPLET_HOST] }}
           
       - uses: jakejarvis/s3-sync-action@master
         with:
