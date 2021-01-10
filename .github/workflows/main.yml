@@ -2,17 +2,25 @@ name: CI
 
 # Controls when the action will run. 
 on:
-  # Triggers the workflow on push or pull request events but only for the main branch
+  # Workflow is triggered by the following events.
   push:
     branches: [ main ]
   pull_request:
     branches: [ main ]
-
+  release:
+    types: [published]
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
-jobs:     
+jobs:
+  get_event:
+    runs-on: ubuntu-20.04
+    name: Find out which event has triggered the workflow and set the environment accordingly.
+    steps:
+      - name: Set environment based on event_name. 
+        run: if [ ${{ github.event_name == 'release' }} ]; then echo ${{ github.event.release.tag_name }}; else echo "latest"; fi
+        
   backend_to_droplet:
     runs-on: ubuntu-20.04
     name: Uses docker-compose over SSH to run cuplbackend on a droplet.
@@ -21,7 +29,7 @@ jobs:
       - uses: actions/checkout@v2
         with:
           submodules: false
-      - uses: cuplsensor/deploy-backend-action@v1
+      - uses: cuplsensor/desploy-backend-action@v1
         with:
           # DigitalOcean droplet parameters.
           droplet_username:           ${{ secrets.CUPL_DEPLOY_LATEST_USERNAME }}
