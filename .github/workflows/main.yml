@@ -19,7 +19,9 @@ jobs:
     name: Find out which event has triggered the workflow and set the environment accordingly.
     steps:
       - name: Set environment based on event_name. 
-        run: if [ ${{ github.event_name == 'release' }} ]; then echo ${{ github.event.release.tag_name }}; else echo "latest"; fi
+        run: |
+          ENVNAME=${{ github.event.release.tag_name }} || "latest"
+          echo $ENVNAME
         
   backend_to_droplet:
     runs-on: ubuntu-20.04
