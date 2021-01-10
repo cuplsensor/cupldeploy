@@ -36,7 +36,7 @@ jobs:
     name: Uses docker-compose over SSH to run cuplbackend on a droplet.
     needs: envname_job
     steps:
-      - name: Test step
+      - name: Define secret names based on the envname converted to uppercase.
         run: |
           ENVNAME_UC=$(echo ${{ needs.envname_job.outputs.envname }} | tr [a-z] [A-Z])
           echo "PTR_DROPLET_USERNAME=${ENVNAME_UC}_DROPLET_USERNAME" >> $GITHUB_ENV
@@ -48,9 +48,9 @@ jobs:
           echo "PTR_CSRF_SESSION_KEY=${ENVNAME_UC}_CSRF_SESSION_KEY" >> $GITHUB_ENV
           echo "PTR_SECRET_KEY=${ENVNAME_UC}_SECRET_KEY" >> $GITHUB_ENV
           
-      - name: Test step 2
+      - name: Print a list of expected secrets.
         run: |
-          echo "looking up environment variables:"
+          echo "configuring using secrets with these names:"
           echo $PTR_DROPLET_USERNAME
           echo $PTR_DROPLET_SSH_PRIVATE_KEY
           echo $PTR_DROPLET_HOST
@@ -65,23 +65,22 @@ jobs:
         with:
           submodules: false
       - uses: cuplsensor/deploy-backend-action@v1
-        if: ${{ false }}
         with:
           # DigitalOcean droplet parameters.
-          droplet_username:           ${{ secrets.CUPL_DEPLOY_LATEST_USERNAME }}
-          droplet_ssh_private_key:    ${{ secrets.CUPL_DEPLOY_LATEST_KEY }}
-          droplet_host:               ${{ secrets.CUPL_DEPLOY_LATEST_HOST }}
+          droplet_username:           ${{ secrets[env.PTR_DROPLET_USERNAME] }}
+          droplet_ssh_private_key:    ${{ secrets[env.PTR_DROPLET_SSH_PRIVATE_KEY] }}
+          droplet_host:               ${{ secrets[env.PTR_DROPLET_HOST] }}
           # Database connection for cuplbackend.
           db_user:                    ${{ secrets.DB_USER }}
           db_pass:                    ${{ secrets.DB_PASS }}
           db_name:                    ${{ secrets.DB_NAME }}
           db_host:                    ${{ secrets.DB_HOST }}
           # Randomised strings for cuplbackend.
-          adminapi_clientsecret:      ${{ secrets.ADMINAPI_CLIENTSECRET }}
-          tagtoken_clientsecret:      ${{ secrets.TAGTOKEN_CLIENTSECRET }}
-          hashids_salt:               ${{ secrets.HASHIDS_SALT }}
-          csrf_session_key:           ${{ secrets.CSRF_SESSION_KEY }}
-          secret_key:                 ${{ secrets.SECRET_KEY }}        
+          adminapi_clientsecret:      ${{ secrets[env.PTR_ADMINAPI_CLIENTSECRET] }}
+          tagtoken_clientsecret:      ${{ secrets[env.PTR_TAGTOKEN_CLIENTSECRET] }}
+          hashids_salt:               ${{ secrets[env.PTR_HASHIDS_SALT] }}
+          csrf_session_key:           ${{ secrets[env.PTR_CSRF_SESSION_KEY] }}
+          secret_key:                 ${{ secrets[env.PTR_SECRET_KEY] }}        
 
   # This workflow contains a single job called "build"
   build:
