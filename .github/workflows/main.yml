@@ -24,7 +24,9 @@ jobs:
         id: set_envname
         run: |
           if ${{ github.event_name == 'release' }}; then
-              echo "::set-output name=envname::${{ github.event.release.tag_name }}"
+              TAGNAME=${{ github.event.release.tag_name }}
+              TAGNAME_PRE_DOT=$(echo "${TAGNAME%%.*}")
+              echo "::set-output name=envname::$TAGNAME_PRE_DOT"
           else
               echo "::set-output name=envname::latest"
           fi
