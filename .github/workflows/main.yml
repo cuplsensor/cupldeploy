@@ -107,7 +107,6 @@ jobs:
 
       # Runs a set of commands using the runners shell. Set CI to false to stop create-react-app from erroring on warnings.
       - name: Run a multi-line script
-        if: ${{ false }}
         run: |
           cd ./cuplfrontend/reactapp
           npm install
@@ -116,7 +115,6 @@ jobs:
           REACT_APP_WSB_ORIGIN: ${{ secrets[needs.distname_job.outputs.PTR_DROPLET_HOST] }}
           
       - uses: jakejarvis/s3-sync-action@master
-        if: ${{ false }}
         with:
           args: --acl public-read --follow-symlinks --delete
         env:
