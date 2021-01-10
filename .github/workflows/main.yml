@@ -14,19 +14,27 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  get_event:
+  envname_job:
     runs-on: ubuntu-20.04
-    name: Find out which event has triggered the workflow and set the environment accordingly.
+    name: Set environment name based on the event.
+    outputs:
+      envname: ${{ steps.set_envname.outputs.envname }}
     steps:
-      - name: Set environment based on event_name. 
+      - name: Set environment based on event_name.
+        id: set_envname
         run: |
-          echo "::set-output name=action_fruit::strawberry"
-          ENVNAME=${{ github.event.release.tag_name }} || "latest"
-          echo $ENVNAME
+          run: |
+          if ${{ github.event_name == 'release' }}; then
+              echo "::set-output name=envname::${{ github.event.release.tag_name }}"
+          else
+              echo "::set-output name=envname::latest"
+          fi
         
   backend_to_droplet:
     runs-on: ubuntu-20.04
     name: Uses docker-compose over SSH to run cuplbackend on a droplet.
+    needs: envname_job
+    environment: ${{ needs.envname_job.outputs.envname }}
     steps:          
       # Check out the repository but exclude submodules
       - uses: actions/checkout@v2
