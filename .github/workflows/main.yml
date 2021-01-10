@@ -54,7 +54,7 @@ jobs:
           
       - name: Print a list of expected secrets.
         run: |
-          echo "configuring using secrets with these names:"
+          echo "expecting to find secrets with these names:"
           echo ${{ steps.set_pointers.outputs.PTR_DROPLET_USERNAME }}
           echo ${{ steps.set_pointers.outputs.PTR_DROPLET_SSH_PRIVATE_KEY }}
           echo ${{ steps.set_pointers.outputs.PTR_DROPLET_HOST }}
@@ -93,10 +93,10 @@ jobs:
 
   # This workflow contains a single job called "build"
   build:
-    needs: [backend_to_droplet]
+    needs: distname_job
     
     # The type of runner that the job will run on
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -113,7 +113,7 @@ jobs:
           npm install
           CI=false npm run build
         env: 
-          REACT_APP_WSB_ORIGIN: https://latest.b.cupl.uk
+          REACT_APP_WSB_ORIGIN: ${{ secrets[needs.distname_job.outputs.PTR_DROPLET_HOST] }}
           
       - uses: jakejarvis/s3-sync-action@master
         if: ${{ false }}
@@ -125,4 +125,4 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: 'us-east-1'   # optional: defaults to us-east-1
           SOURCE_DIR: './cuplfrontend/reactapp/build'      # optional: defaults to entire repository
-          DEST_DIR: 'latest'
+          DEST_DIR: ${{ needs.distname_job.outputs.DISTNAME }}
