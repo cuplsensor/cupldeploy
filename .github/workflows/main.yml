@@ -14,52 +14,61 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  envname_job:
+  distname_job:
     runs-on: ubuntu-20.04
     name: Set environment name based on the event.
     outputs:
-      envname: ${{ steps.set_envname.outputs.envname }}
+      DISTNAME:                     ${{ steps.set_distname.outputs.DISTNAME }}
+      PTR_DROPLET_USERNAME:         ${{ steps.set_pointers.outputs.PTR_DROPLET_USERNAME }}
+      PTR_DROPLET_SSH_PRIVATE_KEY:  ${{ steps.set_pointers.outputs.PTR_DROPLET_SSH_PRIVATE_KEY }}
+      PTR_DROPLET_HOST:             ${{ steps.set_pointers.outputs.PTR_DROPLET_HOST }}
+      PTR_ADMINAPI_CLIENTSECRET:    ${{ steps.set_pointers.outputs.PTR_ADMINAPI_CLIENTSECRET }}
+      PTR_TAGTOKEN_CLIENTSECRET:    ${{ steps.set_pointers.outputs.PTR_TAGTOKEN_CLIENTSECRET }}
+      PTR_HASHIDS_SALT:             ${{ steps.set_pointers.outputs.PTR_HASHIDS_SALT }}
+      PTR_CSRF_SESSION_KEY:         ${{ steps.set_pointers.outputs.PTR_CSRF_SESSION_KEY }}
+      PTR_SECRET_KEY:               ${{ steps.set_pointers.outputs.PTR_SECRET_KEY }}
     steps:
       - name: Set environment based on event_name.
-        id: set_envname
+        id: set_distname
         run: |
           if ${{ github.event_name == 'release' }}; then
               TAGNAME=${{ github.event.release.tag_name }}
               TAGNAME_PRE_DOT=$(echo "${TAGNAME%%.*}")
-              echo "::set-output name=envname::$TAGNAME_PRE_DOT"
+              echo "::set-output name=DISTNAME::$TAGNAME_PRE_DOT"
           else
-              echo "::set-output name=envname::latest"
+              echo "::set-output name=DISTNAME::latest"
           fi
-        
-  backend_to_droplet:
-    runs-on: ubuntu-20.04
-    name: Uses docker-compose over SSH to run cuplbackend on a droplet.
-    needs: envname_job
-    steps:
-      - name: Define secret names based on the envname converted to uppercase.
+          
+      - name: Define secret names based on the DISTNAME converted to uppercase.
+        id: set_pointers
         run: |
-          ENVNAME_UC=$(echo ${{ needs.envname_job.outputs.envname }} | tr [a-z] [A-Z])
-          echo "PTR_DROPLET_USERNAME=${ENVNAME_UC}_DROPLET_USERNAME" >> $GITHUB_ENV
-          echo "PTR_DROPLET_SSH_PRIVATE_KEY=${ENVNAME_UC}_DROPLET_SSH_PRIVATE_KEY" >> $GITHUB_ENV
-          echo "PTR_DROPLET_HOST=${ENVNAME_UC}_DROPLET_HOST" >> $GITHUB_ENV
-          echo "PTR_ADMINAPI_CLIENTSECRET=${ENVNAME_UC}_ADMINAPI_CLIENTSECRET" >> $GITHUB_ENV
-          echo "PTR_TAGTOKEN_CLIENTSECRET=${ENVNAME_UC}_TAGTOKEN_CLIENTSECRET" >> $GITHUB_ENV
-          echo "PTR_HASHIDS_SALT=${ENVNAME_UC}_HASHIDS_SALT" >> $GITHUB_ENV
-          echo "PTR_CSRF_SESSION_KEY=${ENVNAME_UC}_CSRF_SESSION_KEY" >> $GITHUB_ENV
-          echo "PTR_SECRET_KEY=${ENVNAME_UC}_SECRET_KEY" >> $GITHUB_ENV
+          DISTNAME_UC=$(echo ${{ steps.set_distname.outputs.DISTNAME }} | tr [a-z] [A-Z])
+          echo "::set-output name=PTR_DROPLET_USERNAME::${DISTNAME_UC}_DROPLET_USERNAME"
+          echo "::set-output name=PTR_DROPLET_SSH_PRIVATE_KEY::${DISTNAME_UC}_DROPLET_SSH_PRIVATE_KEY"
+          echo "::set-output name=PTR_DROPLET_HOST::${DISTNAME_UC}_DROPLET_HOST"
+          echo "::set-output name=PTR_ADMINAPI_CLIENTSECRET::${DISTNAME_UC}_ADMINAPI_CLIENTSECRET"
+          echo "::set-output name=PTR_TAGTOKEN_CLIENTSECRET::${DISTNAME_UC}_TAGTOKEN_CLIENTSECRET"
+          echo "::set-output name=PTR_HASHIDS_SALT::${DISTNAME_UC}_HASHIDS_SALT"
+          echo "::set-output name=PTR_CSRF_SESSION_KEY::${DISTNAME_UC}_CSRF_SESSION_KEY"
+          echo "::set-output name=PTR_SECRET_KEY::${DISTNAME_UC}_SECRET_KEY"
           
       - name: Print a list of expected secrets.
         run: |
           echo "configuring using secrets with these names:"
-          echo $PTR_DROPLET_USERNAME
-          echo $PTR_DROPLET_SSH_PRIVATE_KEY
-          echo $PTR_DROPLET_HOST
-          echo $PTR_ADMINAPI_CLIENTSECRET
-          echo $PTR_TAGTOKEN_CLIENTSECRET
-          echo $PTR_HASHIDS_SALT
-          echo $PTR_CSRF_SESSION_KEY
-          echo $PTR_SECRET_KEY
-      
+          echo ${{ steps.set_pointers.outputs.PTR_DROPLET_USERNAME }}
+          echo ${{ steps.set_pointers.outputs.PTR_DROPLET_SSH_PRIVATE_KEY }}
+          echo ${{ steps.set_pointers.outputs.PTR_DROPLET_HOST }}
+          echo ${{ steps.set_pointers.outputs.PTR_ADMINAPI_CLIENTSECRET }}
+          echo ${{ steps.set_pointers.outputs.PTR_TAGTOKEN_CLIENTSECRET }}
+          echo ${{ steps.set_pointers.outputs.PTR_HASHIDS_SALT }}
+          echo ${{ steps.set_pointers.outputs.PTR_CSRF_SESSION_KEY }}
+          echo ${{ steps.set_pointers.outputs.PTR_SECRET_KEY }}
+        
+  backend_to_droplet:
+    runs-on: ubuntu-20.04
+    name: Uses docker-compose over SSH to run cuplbackend on a droplet.
+    needs: distname_job
+    steps:      
       # Check out the repository but exclude submodules
       - uses: actions/checkout@v2
         with:
@@ -67,20 +76,20 @@ jobs:
       - uses: cuplsensor/deploy-backend-action@v1
         with:
           # DigitalOcean droplet parameters.
-          droplet_username:           ${{ secrets[env.PTR_DROPLET_USERNAME] }}
-          droplet_ssh_private_key:    ${{ secrets[env.PTR_DROPLET_SSH_PRIVATE_KEY] }}
-          droplet_host:               ${{ secrets[env.PTR_DROPLET_HOST] }}
+          droplet_username:           ${{ secrets[needs.distname_job.outputs.PTR_DROPLET_USERNAME] }}
+          droplet_ssh_private_key:    ${{ secrets[needs.distname_job.outputs.PTR_DROPLET_SSH_PRIVATE_KEY] }}
+          droplet_host:               ${{ secrets[needs.distname_job.outputs.PTR_DROPLET_HOST] }}
           # Database connection for cuplbackend.
           db_user:                    ${{ secrets.DB_USER }}
           db_pass:                    ${{ secrets.DB_PASS }}
           db_name:                    ${{ secrets.DB_NAME }}
           db_host:                    ${{ secrets.DB_HOST }}
           # Randomised strings for cuplbackend.
-          adminapi_clientsecret:      ${{ secrets[env.PTR_ADMINAPI_CLIENTSECRET] }}
-          tagtoken_clientsecret:      ${{ secrets[env.PTR_TAGTOKEN_CLIENTSECRET] }}
-          hashids_salt:               ${{ secrets[env.PTR_HASHIDS_SALT] }}
-          csrf_session_key:           ${{ secrets[env.PTR_CSRF_SESSION_KEY] }}
-          secret_key:                 ${{ secrets[env.PTR_SECRET_KEY] }}        
+          adminapi_clientsecret:      ${{ secrets[needs.distname_job.outputs.PTR_ADMINAPI_CLIENTSECRET] }}
+          tagtoken_clientsecret:      ${{ secrets[needs.distname_job.outputs.PTR_TAGTOKEN_CLIENTSECRET] }}
+          hashids_salt:               ${{ secrets[needs.distname_job.outputs.PTR_HASHIDS_SALT] }}
+          csrf_session_key:           ${{ secrets[needs.distname_job.outputs.PTR_CSRF_SESSION_KEY] }}
+          secret_key:                 ${{ secrets[needs.distname_job.outputs.PTR_SECRET_KEY] }}   
 
   # This workflow contains a single job called "build"
   build:
