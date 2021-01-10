@@ -33,8 +33,10 @@ jobs:
     runs-on: ubuntu-20.04
     name: Uses docker-compose over SSH to run cuplbackend on a droplet.
     needs: envname_job
-    environment: ${{ github.event_name }}
-    steps:          
+    steps:
+      - name: Test step
+        run: echo ${{ needs.envname_job.outputs.envname }}
+        
       # Check out the repository but exclude submodules
       - uses: actions/checkout@v2
         with:
