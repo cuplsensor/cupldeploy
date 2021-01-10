@@ -36,8 +36,8 @@ jobs:
     steps:
       - name: Test step
         run: |
-          echo "DROPLET_USERNAME_LOC=_DROPLET_USERNAME" >> $GITHUB_ENV
-          echo ${{ env.DROPLET_USERNAME_LOC }}
+          echo "action_state=yellow" >> $GITHUB_ENV
+          echo $action_state
       
       # Check out the repository but exclude submodules
       - uses: actions/checkout@v2
