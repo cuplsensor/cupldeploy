@@ -38,9 +38,25 @@ jobs:
         run: |
           ENVNAME_UC=$(echo ${{ needs.envname_job.outputs.envname }} | tr [a-z] [A-Z])
           echo "PTR_DROPLET_USERNAME=${ENVNAME_UC}_DROPLET_USERNAME" >> $GITHUB_ENV
+          echo "PTR_DROPLET_SSH_PRIVATE_KEY=${ENVNAME_UC}_DROPLET_SSH_PRIVATE_KEY" >> $GITHUB_ENV
+          echo "PTR_DROPLET_HOST=${ENVNAME_UC}_DROPLET_HOST" >> $GITHUB_ENV
+          echo "PTR_ADMINAPI_CLIENTSECRET=${ENVNAME_UC}_ADMINAPI_CLIENTSECRET" >> $GITHUB_ENV
+          echo "PTR_TAGTOKEN_CLIENTSECRET=${ENVNAME_UC}_TAGTOKEN_CLIENTSECRET" >> $GITHUB_ENV
+          echo "PTR_HASHIDS_SALT=${ENVNAME_UC}_HASHIDS_SALT" >> $GITHUB_ENV
+          echo "PTR_CSRF_SESSION_KEY=${ENVNAME_UC}_CSRF_SESSION_KEY" >> $GITHUB_ENV
+          echo "PTR_SECRET_KEY=${ENVNAME_UC}_SECRET_KEY" >> $GITHUB_ENV
           
       - name: Test step 2
-        run: echo $PTR_DROPLET_USERNAME
+        run: |
+          echo "looking up environment variables:"
+          echo $PTR_DROPLET_USERNAME
+          echo $PTR_DROPLET_SSH_PRIVATE_KEY
+          echo $PTR_DROPLET_HOST
+          echo $PTR_ADMINAPI_CLIENTSECRET
+          echo $PTR_TAGTOKEN_CLIENTSECRET
+          echo $PTR_HASHIDS_SALT
+          echo $PTR_CSRF_SESSION_KEY
+          echo $PTR_SECRET_KEY
       
       # Check out the repository but exclude submodules
       - uses: actions/checkout@v2
