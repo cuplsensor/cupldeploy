@@ -36,7 +36,7 @@ jobs:
     steps:
       - name: Test step
         run: |
-          PTR_DROPLET_USERNAME=${{ needs.envname_job.outputs.envname ^^}}_DROPLET_USERNAME
+          PTR_DROPLET_USERNAME=${${{ needs.envname_job.outputs.envname }}^^}_DROPLET_USERNAME
           echo $PTR_DROPLET_USERNAME
       
       # Check out the repository but exclude submodules
