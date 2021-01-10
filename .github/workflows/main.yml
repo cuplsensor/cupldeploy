@@ -37,8 +37,10 @@ jobs:
       - name: Test step
         run: |
           ENVNAME_UC=$(echo ${{ needs.envname_job.outputs.envname }} | tr [a-z] [A-Z])
-          echo PTR_DROPLET_USERNAME=${ENVNAME_UC}_DROPLET_USERNAME >> $GITHUB_ENV
-          echo $PTR_DROPLET_USERNAME
+          echo "PTR_DROPLET_USERNAME=${ENVNAME_UC}_DROPLET_USERNAME" >> $GITHUB_ENV
+          
+      - name: Test step 2
+        run: echo $PTR_DROPLET_USERNAME
       
       # Check out the repository but exclude submodules
       - uses: actions/checkout@v2
