@@ -36,12 +36,14 @@ jobs:
     steps:
       - name: Test step
         run: echo ${{ needs.envname_job.outputs.envname }}
-        
+      
+      - name: Second step
+        if: ${{ false }}
       # Check out the repository but exclude submodules
       - uses: actions/checkout@v2
         with:
           submodules: false
-      - uses: cuplsensor/desploy-backend-action@v1
+      - uses: cuplsensor/deploy-backend-action@v1
         with:
           # DigitalOcean droplet parameters.
           droplet_username:           ${{ secrets.CUPL_DEPLOY_LATEST_USERNAME }}
