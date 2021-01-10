@@ -37,7 +37,7 @@ jobs:
       - name: Test step
         run: |
           echo "ACTION_STATE=yellow" >> $GITHUB_ENV
-          echo $ACTION_STATE
+          echo "action state"
       
       # Check out the repository but exclude submodules
       - uses: actions/checkout@v2
