@@ -79,8 +79,8 @@ jobs:
         id: get_hashes
         run: |
           CUPLDEPLOY_SHORT_SHA1=$(echo ${GITHUB_SHA} | cut -c1-7)
-          CUPLFRONTEND_SHORT_SHA1=$(git ls-tree HEAD cuplfrontend | awk '{print substr($3,0,8)}')
-          CUPLBACKEND_SHORT_SHA1=$(git ls-tree HEAD cuplbackend | awk '{print substr($3,0,8)}')
+          CUPLFRONTEND_SHORT_SHA1=$(git ls-tree HEAD cuplfrontend | awk '{print substr($3,0,7)}')
+          CUPLBACKEND_SHORT_SHA1=$(git ls-tree HEAD cuplbackend | awk '{print substr($3,0,7)}')
           echo $CUPLDEPLOY_SHORT_SHA1
           echo $CUPLFRONTEND_SHORT_SHA1
           echo $CUPLBACKEND_SHORT_SHA1
