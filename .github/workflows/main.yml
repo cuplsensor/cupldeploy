@@ -78,10 +78,10 @@ jobs:
       - name: Extract short SHA-1 hashes from the submodules.
         id: get_hashes
         run: |
-          #CUPLDEPLOY_SHORT_SHA1 = $(echo ${GITHUB_SHA} | cut -c1-7)
-          CUPLFRONTEND_SHORT_SHA1 = git ls-tree HEAD cuplfrontend
-          CUPLBACKEND_SHORT_SHA1 = $(git ls-tree HEAD cuplbackend | awk '{print substr($3,0,8)}')
-          #echo $CUPLDEPLOY_SHORT_SHA1
+          CUPLDEPLOY_SHORT_SHA1=$(echo ${GITHUB_SHA} | cut -c1-7)
+          CUPLFRONTEND_SHORT_SHA1=$(git ls-tree HEAD cuplfrontend | awk '{print substr($3,0,8)}')
+          CUPLBACKEND_SHORT_SHA1=$(git ls-tree HEAD cuplbackend | awk '{print substr($3,0,8)}')
+          echo $CUPLDEPLOY_SHORT_SHA1
           echo $CUPLFRONTEND_SHORT_SHA1
           echo $CUPLBACKEND_SHORT_SHA1
           echo "::set-output name=CUPLDEPLOY_SHORT_SHA1::${CUPLDEPLOY_SHORT_SHA1}"
