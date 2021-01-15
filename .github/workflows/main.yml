@@ -28,6 +28,9 @@ jobs:
       PTR_CSRF_SESSION_KEY:         ${{ steps.set_pointers.outputs.PTR_CSRF_SESSION_KEY }}
       PTR_SECRET_KEY:               ${{ steps.set_pointers.outputs.PTR_SECRET_KEY }}
       PTR_AWS_CLOUDFRONT_DIST_ID:   ${{ steps.set_pointers.outputs.PTR_AWS_CLOUDFRONT_DIST_ID }}
+      CUPLDEPLOY_SHORT_SHA1:        ${{ steps.get_hashes.outputs.CUPLDEPLOY_SHORT_SHA1 }}
+      CUPLFRONTEND_SHORT_SHA1:      ${{ steps.get_hashes.outputs.CUPLFRONTEND_SHORT_SHA1 }}
+      CUPLBACKEND_SHORT_SHA1:       ${{ steps.get_hashes.outputs.CUPLBACKEND_SHORT_SHA1 }}
     steps:
       - name: Set environment based on event_name.
         id: set_distname
@@ -66,6 +69,19 @@ jobs:
           echo ${{ steps.set_pointers.outputs.PTR_CSRF_SESSION_KEY }}
           echo ${{ steps.set_pointers.outputs.PTR_SECRET_KEY }}
           echo ${{ steps.set_pointers.outputs.PTR_AWS_CLOUDFRONT_DIST_ID }}
+          
+      - name: Extract short SHA-1 hashes from the submodules.
+        id: get_hashes
+        run: |
+          CUPLDEPLOY_SHORT_SHA1 = $(git log -1 --pretty=format:%h)
+          CUPLFRONTEND_SHORT_SHA1 = $(git ls-tree HEAD cuplfrontend | awk '{print substr($3,0,8)}')
+          CUPLBACKEND_SHORT_SHA1 = $(git ls-tree HEAD cuplbackend | awk '{print substr($3,0,8)}')
+          echo $CUPLDEPLOY_SHORT_SHA1
+          echo $CUPLFRONTEND_SHORT_SHA1
+          echo $CUPLBACKEND_SHORT_SHA1
+          echo "::set-output name=CUPLDEPLOY_SHORT_SHA1::${CUPLDEPLOY_SHORT_SHA1}"
+          echo "::set-output name=CUPLFRONTEND_SHORT_SHA1::${CUPLFRONTEND_SHORT_SHA1}"
+          echo "::set-output name=CUPLBACKEND_SHORT_SHA1::${CUPLBACKEND_SHORT_SHA1}"
         
   backend_to_droplet:
     runs-on: ubuntu-20.04
@@ -78,6 +94,7 @@ jobs:
           submodules: false
       - uses: cuplsensor/deploy-backend-action@v1
         with:
+          dockertag:                  ${{ needs.distname_job.outputs.CUPLBACKEND_SHORT_SHA1 }}
           # DigitalOcean droplet parameters.
           droplet_username:           ${{ secrets[needs.distname_job.outputs.PTR_DROPLET_USERNAME] }}
           droplet_ssh_private_key:    ${{ secrets[needs.distname_job.outputs.PTR_DROPLET_SSH_PRIVATE_KEY] }}
@@ -116,7 +133,15 @@ jobs:
           npm install
           CI=false npm run build
         env: 
-          REACT_APP_WSB_ORIGIN: https://${{ secrets[needs.distname_job.outputs.PTR_DROPLET_HOST] }}
+          REACT_APP_WSB_ORIGIN:        https://${{ secrets[needs.distname_job.outputs.PTR_DROPLET_HOST] }}
+          # Information for the version page.
+          REACT_APP_CUPLDEPLOY_HASH:   ${{ needs.distname_job.outputs.CUPLDEPLOY_SHORT_SHA1 }}
+          REACT_APP_CUPLFRONTEND_HASH: ${{ needs.distname_job.outputs.CUPLFRONTEND_SHORT_SHA1 }}
+          REACT_APP_CUPLBACKEND_HASH:  ${{ needs.distname_job.outputs.CUPLBACKEND_SHORT_SHA1 }}
+          REACT_APP_CUPLDEPLOY_REPO:   https://github.com/cuplsensor/cupldeploy
+          REACT_APP_CUPLFRONTEND_REPO: https://github.com/cuplsensor/cuplfrontend
+          REACT_APP_CUPLBACKEND_REPO:  https://github.com/cuplsensor/cuplbackend
+          REACT_APP_CUPLCODEC_REPO:    https://github.com/cuplsensor/cuplcodec
           
       - uses: jakejarvis/s3-sync-action@master
         with:
