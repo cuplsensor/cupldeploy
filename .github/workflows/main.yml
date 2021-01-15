@@ -70,6 +70,11 @@ jobs:
           echo ${{ steps.set_pointers.outputs.PTR_SECRET_KEY }}
           echo ${{ steps.set_pointers.outputs.PTR_AWS_CLOUDFRONT_DIST_ID }}
           
+      # Check out the repository but exclude submodules
+      - uses: actions/checkout@v2
+        with:
+          submodules: false
+          
       - name: Extract short SHA-1 hashes from the submodules.
         id: get_hashes
         run: |
