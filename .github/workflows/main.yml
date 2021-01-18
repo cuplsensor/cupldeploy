@@ -22,6 +22,7 @@ jobs:
       PTR_DROPLET_USERNAME:         ${{ steps.set_pointers.outputs.PTR_DROPLET_USERNAME }}
       PTR_DROPLET_SSH_PRIVATE_KEY:  ${{ steps.set_pointers.outputs.PTR_DROPLET_SSH_PRIVATE_KEY }}
       PTR_DROPLET_HOST:             ${{ steps.set_pointers.outputs.PTR_DROPLET_HOST }}
+      PTR_DB_NAME:                  ${{ steps.set_pointers.outputs.PTR_DB_NAME }}
       PTR_ADMINAPI_CLIENTSECRET:    ${{ steps.set_pointers.outputs.PTR_ADMINAPI_CLIENTSECRET }}
       PTR_TAGTOKEN_CLIENTSECRET:    ${{ steps.set_pointers.outputs.PTR_TAGTOKEN_CLIENTSECRET }}
       PTR_HASHIDS_SALT:             ${{ steps.set_pointers.outputs.PTR_HASHIDS_SALT }}
@@ -50,6 +51,7 @@ jobs:
           echo "::set-output name=PTR_DROPLET_USERNAME::${DISTNAME_UC}_DROPLET_USERNAME"
           echo "::set-output name=PTR_DROPLET_SSH_PRIVATE_KEY::${DISTNAME_UC}_DROPLET_SSH_PRIVATE_KEY"
           echo "::set-output name=PTR_DROPLET_HOST::${DISTNAME_UC}_DROPLET_HOST"
+          echo "::set-output name=PTR_DB_NAME::${DISTNAME_UC}_DB_NAME"
           echo "::set-output name=PTR_ADMINAPI_CLIENTSECRET::${DISTNAME_UC}_ADMINAPI_CLIENTSECRET"
           echo "::set-output name=PTR_TAGTOKEN_CLIENTSECRET::${DISTNAME_UC}_TAGTOKEN_CLIENTSECRET"
           echo "::set-output name=PTR_HASHIDS_SALT::${DISTNAME_UC}_HASHIDS_SALT"
@@ -63,6 +65,7 @@ jobs:
           echo ${{ steps.set_pointers.outputs.PTR_DROPLET_USERNAME }}
           echo ${{ steps.set_pointers.outputs.PTR_DROPLET_SSH_PRIVATE_KEY }}
           echo ${{ steps.set_pointers.outputs.PTR_DROPLET_HOST }}
+          echo ${{ steps.set_pointers.outputs.PTR_DB_NAME }}
           echo ${{ steps.set_pointers.outputs.PTR_ADMINAPI_CLIENTSECRET }}
           echo ${{ steps.set_pointers.outputs.PTR_TAGTOKEN_CLIENTSECRET }}
           echo ${{ steps.set_pointers.outputs.PTR_HASHIDS_SALT }}
@@ -107,7 +110,7 @@ jobs:
           # Database connection for cuplbackend.
           db_user:                    ${{ secrets.DB_USER }}
           db_pass:                    ${{ secrets.DB_PASS }}
-          db_name:                    ${{ secrets.DB_NAME }}
+          db_name:                    ${{ secrets[needs.distname_job.outputs.PTR_DB_NAME] }}
           db_host:                    ${{ secrets.DB_HOST }}
           # Randomised strings for cuplbackend.
           adminapi_clientsecret:      ${{ secrets[needs.distname_job.outputs.PTR_ADMINAPI_CLIENTSECRET] }}
@@ -152,12 +155,12 @@ jobs:
         with:
           args: --acl public-read --follow-symlinks --delete
         env:
-          AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: 'us-east-1'   # optional: defaults to us-east-1
-          SOURCE_DIR: './cuplfrontend/reactapp/build'      # optional: defaults to entire repository
-          DEST_DIR: ${{ needs.distname_job.outputs.DISTNAME }}
+          AWS_S3_BUCKET:               ${{ secrets.AWS_S3_BUCKET }}
+          AWS_ACCESS_KEY_ID:           ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY:       ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION:                  'us-east-1'   # optional: defaults to us-east-1
+          SOURCE_DIR:                  './cuplfrontend/reactapp/build'      # optional: defaults to entire repository
+          DEST_DIR:                    ${{ needs.distname_job.outputs.DISTNAME }}
           
       - name: Invalidate the cloudfront cache so the CDN updates its edge servers from S3.
         run: |
