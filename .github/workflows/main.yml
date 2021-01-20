@@ -112,6 +112,8 @@ jobs:
           db_pass:                    ${{ secrets.DB_PASS }}
           db_name:                    ${{ secrets[needs.distname_job.outputs.PTR_DB_NAME] }}
           db_host:                    ${{ secrets.DB_HOST }}
+          # Rate-limit settings
+          ratelimit_default:          ${{ secrets.RATELIMIT_DEFAULT }}
           # Randomised strings for cuplbackend.
           adminapi_clientsecret:      ${{ secrets[needs.distname_job.outputs.PTR_ADMINAPI_CLIENTSECRET] }}
           tagtoken_clientsecret:      ${{ secrets[needs.distname_job.outputs.PTR_TAGTOKEN_CLIENTSECRET] }}
