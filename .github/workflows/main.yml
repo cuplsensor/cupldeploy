@@ -133,7 +133,6 @@ jobs:
       - name: Build and run containers on the droplet with docker-compose
         shell: bash
         run: |
-          sudo rm .swp
           docker-compose pull
           docker-compose up --build -d
         env:
