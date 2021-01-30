@@ -100,26 +100,57 @@ jobs:
       - uses: actions/checkout@v2
         with:
           submodules: false
-      - uses: cuplsensor/deploy-backend-action@v1
-        with:
-          dockertag:                  ${{ needs.distname_job.outputs.CUPLBACKEND_SHORT_SHA1 }}
-          # DigitalOcean droplet parameters.
-          droplet_username:           ${{ secrets[needs.distname_job.outputs.PTR_DROPLET_USERNAME] }}
-          droplet_ssh_private_key:    ${{ secrets[needs.distname_job.outputs.PTR_DROPLET_SSH_PRIVATE_KEY] }}
-          droplet_host:               ${{ secrets[needs.distname_job.outputs.PTR_DROPLET_HOST] }}
-          # Database connection for cuplbackend.
-          db_user:                    ${{ secrets.DB_USER }}
-          db_pass:                    ${{ secrets.DB_PASS }}
-          db_name:                    ${{ secrets[needs.distname_job.outputs.PTR_DB_NAME] }}
-          db_host:                    ${{ secrets.DB_HOST }}
-          # Rate-limit settings
-          ratelimit_default:          ${{ secrets.RATELIMIT_DEFAULT }}
+          
+      - name: Make a directory to store the SSH private key.
+        shell: bash
+        run: mkdir ~/.ssh
+      
+      - name: Copy in an SSH private key for communicating with the droplet. Remove carriage returns. This must be a GitHub secret.
+        shell: bash
+        run: echo "${{ secrets[needs.distname_job.outputs.PTR_DROPLET_SSH_PRIVATE_KEY] }}" | tr -d '\r' >> ~/.ssh/id_rsa
+
+      - name: Add the droplet to known hosts. This helps to dodge a "not seen this host before" question when connecting with SSH.
+        shell: bash
+        run: ssh-keyscan -H ${{ secrets[needs.distname_job.outputs.PTR_DROPLET_HOST] }} >> ~/.ssh/known_hosts
+
+      - name: Add a docker context for running commands on the droplet and not the local machine.
+        shell: bash
+        run: docker context create remote --docker "host=ssh://${{ secrets[needs.distname_job.outputs.PTR_DROPLET_USERNAME] }}@${{ secrets[needs.distname_job.outputs.PTR_DROPLET_HOST] }}"
+      
+      - name: Execute all future commands on the droplet by default.
+        shell: bash
+        run: docker context use remote
+
+      # Use the docker-compose file to define a service. STEP5. https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-cli-tutorial-fargate.html
+      - name: Build and run containers on the droplet with docker-compose
+        shell: bash
+        run: |
+          docker-compose rm -f
+          docker-compose pull
+          docker-compose up --build -d
+        env:
+          # Tag for the cuplbackend image.
+          DOCKERTAG:             ${{ needs.distname_job.outputs.CUPLBACKEND_SHORT_SHA1 }}
           # Randomised strings for cuplbackend.
-          adminapi_clientsecret:      ${{ secrets[needs.distname_job.outputs.PTR_ADMINAPI_CLIENTSECRET] }}
-          tagtoken_clientsecret:      ${{ secrets[needs.distname_job.outputs.PTR_TAGTOKEN_CLIENTSECRET] }}
-          hashids_salt:               ${{ secrets[needs.distname_job.outputs.PTR_HASHIDS_SALT] }}
-          csrf_session_key:           ${{ secrets[needs.distname_job.outputs.PTR_CSRF_SESSION_KEY] }}
-          secret_key:                 ${{ secrets[needs.distname_job.outputs.PTR_SECRET_KEY] }}   
+          ADMINAPI_CLIENTSECRET: ${{ secrets[needs.distname_job.outputs.PTR_ADMINAPI_CLIENTSECRET] }}
+          TAGTOKEN_CLIENTSECRET: ${{ secrets[needs.distname_job.outputs.PTR_TAGTOKEN_CLIENTSECRET] }}
+          HASHIDS_SALT:          ${{ secrets[needs.distname_job.outputs.PTR_HASHIDS_SALT] }}
+          CSRF_SESSION_KEY:      ${{ secrets[needs.distname_job.outputs.PTR_CSRF_SESSION_KEY] }}
+          SECRET_KEY:            ${{ secrets[needs.distname_job.outputs.PTR_SECRET_KEY] }}
+          # Database environment variables.
+          DB_USER:               ${{ secrets.DB_USER }}
+          DB_PASS:               ${{ secrets.DB_PASS }}
+          DB_NAME:               ${{ secrets[needs.distname_job.outputs.PTR_DB_NAME] }}
+          DB_HOST:               ${{ secrets.DB_HOST }}
+          # Miscellaneous cuplbackend environment variables.
+          SERVER_NAME:           ${{ secrets[needs.distname_job.outputs.PTR_DROPLET_HOST] }}
+          DROP_ON_INIT:          'false'
+          WSB_PORT:              5001 
+          # Flask-Limiter environment variables.
+          RATELIMIT_STORAGE_URL: 'redis://redis_r1:6379'
+          RATELIMIT_STRATEGY:    'moving-window'
+          RATELIMIT_ENABLED:     'true'
+          RATELIMIT_DEFAULT:     ${{ secrets.RATELIMIT_DEFAULT }} 
 
   # This workflow contains a single job called "build"
   build:
