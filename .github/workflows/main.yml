@@ -137,7 +137,7 @@ jobs:
           docker-compose --context remote up --build -d
         env:
           # Tag for the cuplbackend image.
-          DOCKERTAG:             ${{ needs.distname_job.outputs.CUPLBACKEND_SHORT_SHA1 }}
+          DOCKERTAG:             'latest' #${{ needs.distname_job.outputs.CUPLBACKEND_SHORT_SHA1 }}
           # Randomised strings for cuplbackend.
           ADMINAPI_CLIENTSECRET: ${{ secrets[needs.distname_job.outputs.PTR_ADMINAPI_CLIENTSECRET] }}
           TAGTOKEN_CLIENTSECRET: ${{ secrets[needs.distname_job.outputs.PTR_TAGTOKEN_CLIENTSECRET] }}
