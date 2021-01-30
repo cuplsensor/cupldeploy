@@ -120,14 +120,19 @@ jobs:
       - name: Execute all future commands on the droplet by default.
         shell: bash
         run: docker context use remote
+        
+      - name: Remove any existing containers
+        shell: bash
+        run: docker-compose rm -f
+        
+      - name: Pull new containers
+        shell: bash
+        run: docker-compose pull
 
       # Use the docker-compose file to define a service. STEP5. https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-cli-tutorial-fargate.html
       - name: Build and run containers on the droplet with docker-compose
         shell: bash
-        run: |
-          docker-compose rm -f
-          docker-compose pull
-          docker-compose up --build -d
+        run: docker-compose up --build -d
         env:
           # Tag for the cuplbackend image.
           DOCKERTAG:             ${{ needs.distname_job.outputs.CUPLBACKEND_SHORT_SHA1 }}
