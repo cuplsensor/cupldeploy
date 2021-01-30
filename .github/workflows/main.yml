@@ -125,9 +125,9 @@ jobs:
       #  shell: bash
       #  run: docker-compose down --rmi all --remove-orphans
         
-      #- name: Pull new containers
-      #  shell: bash
-      #  run: docker-compose pull
+      - name: Pull new containers
+        shell: bash
+        run: docker-compose -v
 
       # Use the docker-compose file to define a service. STEP5. https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-cli-tutorial-fargate.html
       - name: Build and run containers on the droplet with docker-compose
