@@ -121,9 +121,9 @@ jobs:
         shell: bash
         run: docker context use remote
         
-      - name: Remove any existing containers
-        shell: bash
-        run: docker-compose down --rmi all --remove-orphans
+      #- name: Remove any existing containers
+      #  shell: bash
+      #  run: docker-compose down --rmi all --remove-orphans
         
       - name: Pull new containers
         shell: bash
