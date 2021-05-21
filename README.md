@@ -9,6 +9,27 @@ A simple way to deploy a system made up of:
 
 ![Diagram showing cuplfrontend cuplbackend and the database](docs/cupldeploy_system_diagram.png)
 
+DNAME is short for DEPLOYMENT NAME `d3` or `latest`
+
+### Frontend
+
+The frontend web application is hosted at a domain, for example: [latest.f.cupl.uk](https://latest.f.cupl.uk). This is registered with [Amazon Route53](https://docs.aws.amazon.com/route53/?id=docs_gateway). 
+
+An **A Record** routes traffic to a [Amazon CloudFront distribution](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/distribution-working-with.html). CloudFront is a [Content Delivery Network](https://en.wikipedia.org/wiki/Content_delivery_network), which stores copies of **files** from a given **origin** at edge locations worldwide. The purpose is to reduce latency in file access.
+
+In our case:
+
+* The files form a [static web application](https://en.wikipedia.org/wiki/Static_web_page) named **cuplfrontend**. 
+* The origin is an [Amazon S3 Bucket](https://aws.amazon.com/s3/), a *pay-for-what-you-use* web folder with near infinite capacity.
+
+The frontend web application provides a Graphical User Interface to **cuplbackend**. Data are stored and retrieved via calls to its web-based API.
+
+### Backend
+
+The backend web application is hosted at a domain name, for example: [latest.b.cupl.uk](https://latest.b.cupl.uk) 
+
+
+
 # Clone the repository
 
 `git clone --recursive https://github.com/cuplsensor/cuplbackend`
