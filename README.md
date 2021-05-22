@@ -32,12 +32,12 @@ The backend web application is hosted at a domain name, for example: [latest.b.c
 
 The domain is registered with the DigitalOcean DNS. An **A record** routes traffic to the IP address of a DigitalOcean Droplet, which is a virtual machine running Linux. 
 
-Services are packaged into Docker containers. This is done for isolation: one service is not able to interfere with another. Each 'sees' its own Linux installation and has to install its own dependencies, thereby avoiding [dependency hell](https://en.wikipedia.org/wiki/Dependency_hell). 
+Services are packaged into [Docker](https://en.wikipedia.org/wiki/Docker_(software)) containers. This is done for isolation: one service is not able to interfere with another. Each *sees* its own Linux installation and has to install its own dependencies, thereby avoiding [dependency hell](https://en.wikipedia.org/wiki/Dependency_hell). 
 
 The 3 services run on a single Docker instance using [Docker Compose](https://docs.docker.com/compose/).  Each is defined in [docker-compose.yml](docker-compose.yml):
 
-1. Nginx-certbot runs the web server, **Nginx**. This acts as a *reverse proxy*. It rewrites requests received over TCP/IP into the WSGI protocol, which is standard for Python web applications.
-2. The Python web application is named **cuplbackend**. It is built using the Flask framework. The application exposes two HTTPS API. The interface is text only: data are read and written as [JSON](https://en.wikipedia.org/wiki/JSON). Data are persisted in an external PostgreSQL database.
+1. Nginx-certbot runs the web server, **Nginx**. This acts as a *reverse proxy*. It rewrites requests received over TCP/IP into the [WSGI](https://en.wikipedia.org/wiki/Web_Server_Gateway_Interface) protocol, which is standard for Python web applications.
+2. The Python web application is named **cuplbackend**. It is built using the [Flask](https://flask.palletsprojects.com/en/1.1.x/) framework. The application exposes two HTTPS APIs. The interface is text only: data are read and written as [JSON](https://en.wikipedia.org/wiki/JSON). Data are persisted in an external PostgreSQL database.
 3. A Redis instance. A cuplbackend dependency named [Flask-Limiter](https://flask-limiter.readthedocs.io/en/stable/) uses this to record and block API requests. 
 
 # Clone the repository
