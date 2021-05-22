@@ -20,6 +20,7 @@ services:
      - RATELIMIT_STRATEGY
      - RATELIMIT_DEFAULT
      - RATELIMIT_ENABLED
+     - FLASK_ENV=production
      # Passwords
      - DB_PASS
      - ADMINAPI_CLIENTSECRET
