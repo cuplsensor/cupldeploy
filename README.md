@@ -38,7 +38,7 @@ The 3 services run on a single Docker instance using [Docker Compose](https://do
 
 1. Nginx-certbot runs the web server, **Nginx**. This acts as a *reverse proxy*. It rewrites requests received over TCP/IP into the WSGI protocol, which is standard for Python web applications.
 2. The Python web application is named **cuplbackend**. It is built using the Flask framework. The application exposes two HTTPS API. The interface is text only: data are read and written as [JSON](https://en.wikipedia.org/wiki/JSON). Data are persisted in an external PostgreSQL database.
-3. (Less importantly) a Redis instance. [Flask-Limiter](https://flask-limiter.readthedocs.io/en/stable/) (a dependency of cuplbackend) employs this to prevent too many API requests from one source in a given time window.
+3. A Redis instance. [Flask-Limiter](https://flask-limiter.readthedocs.io/en/stable/) (a dependency of cuplbackend) employs this to prevent too many API requests from one source in a given time window.
 
 
 # Clone the repository
