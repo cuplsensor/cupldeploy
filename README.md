@@ -54,7 +54,7 @@ Application versions are specified by commit hashes of Git submodules in this pa
 
 1. GitHub Actions launches a [Hosted Runner](https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#supported-runners-and-hardware-resources), a containerised version of Ubuntu Linux.
 2. The hosted runner configures an SSH connection to the Droplet.
-3. The hosted runner uses SSH to create a Docker context. When this is employed, docker commands run remotely on the Droplet instead of locally on the runner.
+3. The hosted runner uses SSH to create a [Docker context](https://docs.docker.com/engine/context/working-with-contexts/). When this is employed, docker commands run remotely on the Droplet instead of locally on the runner.
 4. The command ``docker-compose --context remote pull`` causes the 3 Docker images defined in ``docker-compose.yml`` to be downloaded from DockerHub.
 5. The command ``docker-compose --context remote up --build -d`` builds the 3 Docker images into containers. 
  
