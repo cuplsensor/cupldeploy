@@ -46,27 +46,19 @@ There are 3 workflows in [main.yml](.github/workflows/main.yml). These are autom
 
 ![GitHub Workflows](docs/ghworkflows.png)
 
-Commit hashes of the Git submodules in this parent repository specify which applications to install. In this way, cupldeploy documents which submodule versions are compatible with one another.
+Application versions are specified by commit hashes of Git submodules in this parent repository. In this way, cupldeploy documents which submodule versions are compatible with one another.
 
 ![GitHub Submodules](docs/ghsubmodules.png)
 
+### Backend Workflow
 
-# Clone the repository
-
-`git clone --recursive https://github.com/cuplsensor/cuplbackend`
-
-# Set environment variables
-
-```
-chmod +x autogenpwd.sh
-export ADMINAPI_CLIENTSECRET=$(./autogenpwd.sh)
-export TAGTOKEN_CLIENTSECRET=$(./autogenpwd.sh)
-export DB_PASS=$(./autogenpwd.sh)
-export HASHIDS_SALT=$(./autogenpwd.sh)
-export CSRF_SESSION_KEY=$(./autogenpwd.sh)
-export SECRET_KEY=$(./autogenpwd.sh)
-docker-compose config
-```
+1. GitHub Actions launches a containerised version of Ubuntu Linux, named a [Hosted Runner](https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#supported-runners-and-hardware-resources).
+2. The hosted runner configures an SSH connection to the Droplet.
+3. The hosted runner uses SSH to create a Docker context. When this is employed, docker commands run remotely on the Droplet instead of locally on the runner.
+4. The command ``docker-compose --context remote pull`` causes the 3 Docker images defined in ``docker-compose.yml`` to be downloaded from DockerHub.
+5. The command ``docker-compose --context remote up --build -d`` builds the 3 Docker images into containers. 
+ 
+Docker builds are configured from a list of environment variables. These are stored in this repository as encrypted GitHub Secrets.
 
 # Create a droplet
 Follow instructions https://danielwachtel.com/devops/deploying-multiple-dockerized-apps-digitalocean-docker-compose-contexts
