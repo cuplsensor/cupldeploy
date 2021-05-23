@@ -48,7 +48,7 @@ There are 3 workflows in [main.yml](.github/workflows/main.yml). These run each 
 
 Commit hashes of the Git submodules in this parent repository specify which applications to install. In this way, cupldeploy documents which submodule versions are compatible with one another.
 
-![GitHub Submodules[docs/ghsubmodules.png)
+![GitHub Submodules](docs/ghsubmodules.png)
 
 
 # Clone the repository
