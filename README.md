@@ -57,7 +57,7 @@ Application versions are specified by commit hashes of Git submodules in this pa
 3. The hosted runner uses SSH to create a [Docker context](https://docs.docker.com/engine/context/working-with-contexts/). When this is employed, docker commands run remotely on the Droplet instead of locally on the runner.
 4. The command ``docker-compose --context remote pull`` causes 3 Docker images defined in [docker-compose.yml](docker-compose.yml) to be downloaded from DockerHub.
 5. The command ``docker-compose --context remote up --build -d`` builds each Docker images into a containers. 
-6. Finally ''up'' in the previous command causes all containers to run. 
+6. Finally ``up`` in the previous command causes all containers to run ``-d`` daemonised. 
  
 Docker builds are configured from a list of environment variables. These are stored in this repository as encrypted GitHub Secrets.
 
