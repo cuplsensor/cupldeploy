@@ -40,6 +40,17 @@ The 3 services run on a single Docker instance using [Docker Compose](https://do
 2. The [cuplbackend](https://hub.docker.com/r/cupl/backend) web application. It is built atop of the [Flask](https://flask.palletsprojects.com/en/1.1.x/) framework. The application exposes [two HTTPS APIs](https://cupl.readthedocs.io/projects/backend/en/latest/docs/api/index.html). The interface is text only: data are read and written as [JSON](https://en.wikipedia.org/wiki/JSON). Data are persisted in an external PostgreSQL database.
 3. A [Redis](https://hub.docker.com/_/redis) instance. A cuplbackend dependency named [Flask-Limiter](https://flask-limiter.readthedocs.io/en/stable/) uses this to record and block API requests. 
 
+## GitHub Workflows
+
+There are 3 workflows in [main.yml](.github/workflows/main.yml). These run each time a commit is pushed to GitHub. The workflows run cuplfrontend and cuplbackend on the AWS and DigitalOcean infrastructure described above. 
+
+![GitHub Workflows](docs/ghworkflows.png)
+
+Commit hashes of the Git submodules in this parent repository specify which applications to install. In this way, cupldeploy documents which submodule versions are compatible with one another.
+
+![GitHub Submodules[docs/ghsubmodules.png)
+
+
 # Clone the repository
 
 `git clone --recursive https://github.com/cuplsensor/cuplbackend`
