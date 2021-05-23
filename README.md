@@ -11,7 +11,7 @@ Deploys a system made up of:
 
 DNAME is short for DEPLOYMENT NAME `d3` or `latest`
 
-### Frontend
+### Frontend Diagram
 
 The frontend web application is hosted at a domain, for example: [latest.f.cupl.uk](https://latest.f.cupl.uk). 
 
@@ -26,7 +26,7 @@ CloudFront reduces latency in file access, compared to just hosting from S3. It 
 
 The frontend web application provides a Graphical User Interface to **cuplbackend**. Data are stored and retrieved via calls to its web-based API.
 
-### Backend
+### Backend Diagram
 
 The backend web application is hosted at a domain name, for example: [latest.b.cupl.uk](https://latest.b.cupl.uk). 
 
@@ -50,7 +50,9 @@ Application versions are specified by commit hashes of Git submodules in this pa
 
 ![GitHub Submodules](docs/ghsubmodules.png)
 
-### Backend
+### Frontend Workflow
+
+### Backend Workflow
 
 1. GitHub Actions launches a [Hosted Runner](https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#supported-runners-and-hardware-resources), a containerised version of Ubuntu Linux.
 2. The hosted runner configures an SSH connection to the Droplet.
