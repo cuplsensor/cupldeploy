@@ -13,7 +13,7 @@ DNAME is short for DEPLOYMENT NAME `d3` or `latest`
 
 ### Frontend Diagram
 
-The frontend web application is hosted at a domain, for example: [latest.f.cupl.uk](https://latest.f.cupl.uk). 
+Scanning a cuplTag with an NFC phone causes the frontend web application to open. This is hosted at a domain, for example: [latest.f.cupl.uk](https://latest.f.cupl.uk). 
 
 The domain is registered with [Amazon Route53](https://docs.aws.amazon.com/route53/?id=docs_gateway). 
 
