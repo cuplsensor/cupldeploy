@@ -1,9 +1,9 @@
 # cupldeploy
 
-A simple way to deploy a system made up of:
+Deploys a system made up of:
 
-* A web application (cuplfrontend and cuplbackend).
-* The cuplTag hardware and firmware.
+* A web application comprised of [cuplfrontend](https://github.com/cuplsensor/cuplfrontend) and [cuplbackend](https://github.com/cuplsensor/cuplbackend).
+* [cuplTag](https://github.com/cuplsensor/cupltag) hardware and firmware.
 
 ## System Diagram 
 
