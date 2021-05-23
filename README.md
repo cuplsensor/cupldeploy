@@ -13,9 +13,9 @@ DNAME is short for DEPLOYMENT NAME `d3` or `latest`
 
 ### Frontend Diagram
 
-Scanning a cuplTag with an NFC phone causes the frontend web application to open. This is hosted at a domain, for example: [latest.f.cupl.uk](https://latest.f.cupl.uk). 
+Scanning cuplTag with an NFC phone causes the frontend web application to open. 
 
-The domain is registered with [Amazon Route53](https://docs.aws.amazon.com/route53/?id=docs_gateway). 
+The frontend web application is hosted at a domain, for example: [latest.f.cupl.uk](https://latest.f.cupl.uk), which is registered with [Amazon Route53](https://docs.aws.amazon.com/route53/?id=docs_gateway). 
 
 An **A Record** routes traffic to a [Amazon CloudFront distribution](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/distribution-working-with.html). CloudFront is a [Content Delivery Network](https://en.wikipedia.org/wiki/Content_delivery_network), which stores copies of **files** from a given **origin** at edge locations worldwide. 
 
