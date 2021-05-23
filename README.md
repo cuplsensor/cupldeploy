@@ -50,7 +50,7 @@ Application versions are specified by commit hashes of Git submodules in this pa
 
 ![GitHub Submodules](docs/ghsubmodules.png)
 
-### Backend Workflow
+### Backend
 
 1. GitHub Actions launches a containerised version of Ubuntu Linux, named a [Hosted Runner](https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#supported-runners-and-hardware-resources).
 2. The hosted runner configures an SSH connection to the Droplet.
