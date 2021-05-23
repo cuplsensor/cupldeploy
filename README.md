@@ -15,7 +15,7 @@ DNAME is short for DEPLOYMENT NAME `d3` or `latest`
 
 Scanning cuplTag with an NFC phone causes the frontend web application to open. 
 
-The frontend web application is hosted at a domain, for example: [latest.f.cupl.uk](https://latest.f.cupl.uk), which is registered on the [Amazon Route53](https://docs.aws.amazon.com/route53/?id=docs_gateway) DNS. 
+The application is hosted at a domain, for example: [latest.f.cupl.uk](https://latest.f.cupl.uk), which is registered on the [Amazon Route53](https://docs.aws.amazon.com/route53/?id=docs_gateway) DNS server. 
 
 An **A Record** routes traffic to a [Amazon CloudFront distribution](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/distribution-working-with.html). CloudFront is a [Content Delivery Network](https://en.wikipedia.org/wiki/Content_delivery_network), which stores copies of **files** from a given **origin** at edge locations worldwide. 
 
@@ -30,7 +30,7 @@ The frontend web application provides a Graphical User Interface to **cuplbacken
 
 The backend web application is hosted at a domain name, for example: [latest.b.cupl.uk](https://latest.b.cupl.uk). 
 
-The domain is registered with the DigitalOcean DNS. An **A record** routes traffic to the IP address of a DigitalOcean Droplet, which is a virtual machine running Linux. 
+The domain is registered with the DigitalOcean DNS server. An **A record** routes traffic to the IP address of a DigitalOcean Droplet, which is a virtual machine running Linux. 
 
 Services are packaged into [Docker](https://en.wikipedia.org/wiki/Docker_(software)) containers. This is done for isolation: one service is not able to interfere with another. Each *sees* its own Linux installation and has to install its own dependencies, thereby avoiding [dependency hell](https://en.wikipedia.org/wiki/Dependency_hell). 
 
