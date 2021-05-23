@@ -42,7 +42,7 @@ The 3 services run on a single Docker instance using [Docker Compose](https://do
 
 ## GitHub Workflows
 
-There are 3 workflows in [main.yml](.github/workflows/main.yml). These are automatically run by a [GitHub Action](https://github.com/features/actions) whenever a commit is pushed to GitHub. The workflows build and run cuplfrontend / cuplbackend on the AWS / DigitalOcean infrastructure described above. 
+There are 3 workflows in [main.yml](.github/workflows/main.yml). These are run by a [GitHub Action](https://github.com/features/actions) whenever a commit is pushed to GitHub. The workflows build and run cuplfrontend / cuplbackend on the AWS / DigitalOcean infrastructure described above. 
 
 ![GitHub Workflows](docs/ghworkflows.png)
 
