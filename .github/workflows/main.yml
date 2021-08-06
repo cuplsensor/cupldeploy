@@ -131,7 +131,8 @@ jobs:
         shell: bash
         run: |
           sudo rm /usr/local/bin/docker-compose
-          sudo pip install docker-compose==1.27.4 #docker-compose down --rmi all --remove-orphans
+          sudo pip install docker-compose==1.27.4 
+          docker-compose down --rmi all --remove-orphans
         
       - name: Pull new containers
         shell: bash
