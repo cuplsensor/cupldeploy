@@ -84,12 +84,18 @@ jobs:
           CUPLDEPLOY_SHORT_SHA1=$(echo ${GITHUB_SHA} | cut -c1-7)
           CUPLFRONTEND_SHORT_SHA1=$(git ls-tree HEAD cuplfrontend | awk '{print substr($3,0,7)}')
           CUPLBACKEND_SHORT_SHA1=$(git ls-tree HEAD cuplbackend | awk '{print substr($3,0,7)}')
+          if ${{ github.event_name == 'release' }}; then
+              echo "::set-output name=DOCKERTAG::$CUPLBACKEND_SHORT_SHA1"
+          else
+              echo "::set-output name=DOCKERTAG::latest"
+          fi
           echo $CUPLDEPLOY_SHORT_SHA1
           echo $CUPLFRONTEND_SHORT_SHA1
           echo $CUPLBACKEND_SHORT_SHA1
           echo "::set-output name=CUPLDEPLOY_SHORT_SHA1::${CUPLDEPLOY_SHORT_SHA1}"
           echo "::set-output name=CUPLFRONTEND_SHORT_SHA1::${CUPLFRONTEND_SHORT_SHA1}"
           echo "::set-output name=CUPLBACKEND_SHORT_SHA1::${CUPLBACKEND_SHORT_SHA1}"
+          
         
   backend_to_droplet:
     runs-on: ubuntu-20.04
@@ -139,7 +145,7 @@ jobs:
           docker-compose --context remote up --build -d
         env:
           # Tag for the cuplbackend image.
-          DOCKERTAG:             ${{ needs.distname_job.outputs.CUPLBACKEND_SHORT_SHA1 }}
+          DOCKERTAG:             ${{ needs.distname_job.outputs.DOCKERTAG }}
           # Randomised strings for cuplbackend.
           ADMINAPI_CLIENTSECRET: ${{ secrets[needs.distname_job.outputs.PTR_ADMINAPI_CLIENTSECRET] }}
           TAGTOKEN_CLIENTSECRET: ${{ secrets[needs.distname_job.outputs.PTR_TAGTOKEN_CLIENTSECRET] }}
