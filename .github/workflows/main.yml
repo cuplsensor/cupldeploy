@@ -143,6 +143,7 @@ jobs:
         run: |
           docker-compose --context remote stop
           docker-compose --context remote rm -f
+          docker --context remote rm -f $(docker ps -aq)
           docker-compose --context remote pull 
           docker-compose --context remote up --build -d
         env:
