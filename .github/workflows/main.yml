@@ -141,9 +141,10 @@ jobs:
       - name: Build and run containers on the droplet with docker-compose
         shell: bash
         run: |
+          docker-compose --context remote down
           docker-compose --context remote stop
           docker-compose --context remote rm -f
-          docker --context remote rm -f $(docker ps -aq)
+          docker rm -f $(docker ps -aq)
           docker-compose --context remote pull 
           docker-compose --context remote up --build -d
         env:
