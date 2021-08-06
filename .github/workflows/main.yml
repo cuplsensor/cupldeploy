@@ -87,7 +87,7 @@ jobs:
           if ${{ github.event_name == 'release' }}; then
               echo "::set-output name=DOCKERTAG::$CUPLBACKEND_SHORT_SHA1"
           else
-              echo "::set-output name=DOCKERTAG::latest"
+              echo "::set-output name=DOCKERTAG::master"
           fi
           echo $CUPLDEPLOY_SHORT_SHA1
           echo $CUPLFRONTEND_SHORT_SHA1
