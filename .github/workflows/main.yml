@@ -160,6 +160,7 @@ jobs:
           DB_NAME:               ${{ secrets[needs.distname_job.outputs.PTR_DB_NAME] }}
           DB_HOST:               ${{ secrets.DB_HOST }}
           DB_PORT:               ${{ secrets.DB_PORT }}
+          DB_SSLMODE:            ${{ secrets.DB_SSLMODE }}
           # Miscellaneous cuplbackend environment variables.
           SERVER_NAME:           ${{ secrets[needs.distname_job.outputs.PTR_DROPLET_HOST] }}
           DROP_ON_INIT:          'false'
