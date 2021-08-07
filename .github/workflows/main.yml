@@ -115,6 +115,10 @@ jobs:
         shell: bash
         run: echo "${{ secrets[needs.distname_job.outputs.PTR_DROPLET_SSH_PRIVATE_KEY] }}" | tr -d '\r' >> ~/.ssh/id_rsa
         
+      - name: Tighten permissions on the private key file. Required for SSH to work later on.
+        shell: bash
+        run: chmod 400 ~/.ssh/id_rsa
+        
       - name: Add the droplet to known hosts. This helps to dodge a "not seen this host before" question when connecting with SSH.
         shell: bash
         run: ssh-keyscan -H ${{ secrets[needs.distname_job.outputs.PTR_DROPLET_HOST] }} >> ~/.ssh/known_hosts
