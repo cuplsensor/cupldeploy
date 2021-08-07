@@ -117,7 +117,7 @@ jobs:
         
       - name: Copy in the database provider CA certificate. Remove carriage returns. This must be a GitHub secret.
         shell: bash
-        run: echo "${{ secrets.DB_SSLROOTCERT }}" | tr -d '\r' >> ~/.postgresql/root.crt
+        run: echo "${{ secrets.DB_SSLROOTCERT }}" | tr -d '\r' | ssh ${{ secrets[needs.distname_job.outputs.PTR_DROPLET_USERNAME] }}@${{ secrets[needs.distname_job.outputs.PTR_DROPLET_HOST] }} -T "cat > ~/.postgresql/root.crt"
 
       - name: Add the droplet to known hosts. This helps to dodge a "not seen this host before" question when connecting with SSH.
         shell: bash
