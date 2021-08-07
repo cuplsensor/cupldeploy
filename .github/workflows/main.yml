@@ -125,7 +125,7 @@ jobs:
         
       - name: Copy in the database provider CA certificate. Remove carriage returns. This must be a GitHub secret.
         shell: bash
-        run: echo "${{ secrets.DB_SSLROOTCERT }}" | tr -d '\r' | ssh ${{ secrets[needs.distname_job.outputs.PTR_DROPLET_USERNAME] }}@${{ secrets[needs.distname_job.outputs.PTR_DROPLET_HOST] }} -T "cat >> ~/.postgresql/root.crt"
+        run: echo "${{ secrets.DB_SSLROOTCERT }}" | tr -d '\r' | ssh ${{ secrets[needs.distname_job.outputs.PTR_DROPLET_USERNAME] }}@${{ secrets[needs.distname_job.outputs.PTR_DROPLET_HOST] }} -T ">> ~/.postgresql/root.crt"
 
       - name: Add a docker context for running commands on the droplet and not the local machine.
         shell: bash
