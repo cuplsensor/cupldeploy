@@ -30,7 +30,7 @@ services:
      - CSRF_SESSION_KEY
      - SECRET_KEY
    volumes:
-     - /root/.postgresql/root.crt:/root/.postgresql/root.crt
+     - /root/.postgresql:/root/.postgresql
    depends_on:
      - redis_r1
    
