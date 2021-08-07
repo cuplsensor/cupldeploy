@@ -14,6 +14,7 @@ services:
      - DB_PORT
      - DB_USER
      - DB_SSLMODE
+     - DB_SSLROOTCERT=/root/.postgresql/root.crt
      - DROP_ON_INIT
      - WSB_PORT
      - SERVER_NAME
