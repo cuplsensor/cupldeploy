@@ -337,23 +337,23 @@ In this tutorial, we will set up a DigitalOcean managed database in the same dat
 4. Under **Choose a database engine** select **PostgreSQL version 11**.
 5. The default cluster configuration will work.
 6. Select the same datacenter that your droplet is in (*example* San Francisco 3). 
-   ![image-20210801131134395](docs/screenshots/image-20210801131134395.png)
+   ![image-20210801131134395](docs/screenshots/image-20210801131134395.png | width=100)
 7. Under **Choose a unique database cluster name** enter ``db-postgresql-DATACENTER-ROOT_DOMAIN`` (*example* ``db-postgresql-sfo3-lpuc``).
 8. Select the green **Create a Database Cluster** button.
 9. You will enter the getting started step-by-step, whilst the database is provisioned. Click **Get Started**.
 10. Under **Add trusted sources** enter the name of your droplet. 
-    ![image-20210801132313788](docs/screenshots/image-20210801132313788.png)
+    ![image-20210801132313788](docs/screenshots/image-20210801132313788.png | width=100)
 11. Select **Allow these inbound sources only**.
 12. Select **Continue, I'll do this later** followed by **Great, I'm done**.
 13. From the top menu, select **Users & Databases**.
 14. Under **Add new user** enter ``deployer`` followed by **Save**.
 15. Under **Add new database** enter ``latest-lpuc-db`` followed by **Save**. An empty database will be created.
-    ![image-20210801133623482](docs/screenshots/image-20210801133623482.png)
+    ![image-20210801133623482](docs/screenshots/image-20210801133623482.png | width=100)
 16. Finally we will note our database credentials. From the top menu, select **Overview**.
 17. Under **Connection Details** select **VPC network**.
 18. Under **User** select ``deployer``.
 19. Under **Database/Pool** select ``latest-lpuc-db``.
-    ![image-20210801134904372](docs/screenshots/image-20210801134904372.png)
+    ![image-20210801134904372](docs/screenshots/image-20210801134904372.png | width=100)
 20. Record the following:
 
 | Variable Name                            | Connection Details Name | Example                                |
