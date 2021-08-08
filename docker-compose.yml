@@ -14,7 +14,6 @@ services:
      - DB_PORT
      - DB_USER
      - DB_SSLMODE
-     - DB_SSLROOTCERT=/root/.postgresql/root.crt
      - DROP_ON_INIT
      - WSB_PORT
      - SERVER_NAME
@@ -30,8 +29,6 @@ services:
      - HASHIDS_SALT
      - CSRF_SESSION_KEY
      - SECRET_KEY
-   volumes:
-     - /root/.postgresql:/root/.postgresql
    depends_on:
      - redis_r1
    
