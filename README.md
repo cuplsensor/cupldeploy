@@ -114,7 +114,7 @@ This part of the tutorial is derived from an [article](https://danielwachtel.com
 1. Open a Bash shell on your local machine.
 2. Run ``cd ~/.ssh``
 3. Run ``ssh-keygen``.
-   <img src="docs/screenshots/image-20210727230015823.png" width="500">
+   <p><img src="docs/screenshots/image-20210727230015823.png" width="50%"></p>
 4. Name your keypair ``DEPLOY_NAME-ROOT_DOMAIN-root``  (*example* ``latest-lpuc-root``).
 5. Enter a passphrase. 
 6. Press ENTER and the key pair (a public and private key) will be generated. 
