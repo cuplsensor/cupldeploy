@@ -103,7 +103,7 @@ This part of the tutorial is derived from an [article](https://danielwachtel.com
    * Ubuntu 20.04 (LTS) x64.
    * Basic Shared CPU.
    * Regular Intel with 2GB of RAM.
-     ![image-20210727215012705](\docs\screenshots\image-20210727215012705.png)
+     ![image-20210727215012705](docs/screenshots/image-20210727215012705.png)
 6. The **monitoring** add-on is recommended.
 7. Under **Authentication** select **SSH keys**.
 8. Select **New SSH Key**
@@ -114,7 +114,7 @@ This part of the tutorial is derived from an [article](https://danielwachtel.com
 1. Open a Bash shell on your local machine.
 2. Run ``cd ~/.ssh``
 3. Run ``ssh-keygen``.
-   ![image-20210727230015823](\docs\screenshots\image-20210727230015823.png)
+   ![image-20210727230015823](docs/screenshots/image-20210727230015823.png)
 4. Name your keypair ``DEPLOY_NAME-ROOT_DOMAIN-root``  (*example* ``latest-lpuc-root``).
 5. Enter a passphrase. 
 6. Press ENTER and the key pair (a public and private key) will be generated. 
@@ -124,7 +124,7 @@ This part of the tutorial is derived from an [article](https://danielwachtel.com
 1. Run  ``cat DEPLOY_NAME-ROOT_DOMAIN-root.pub`` (*example* ``cat latest-lpuc-root.pub``) to display the public key.
 2. Copy the public key.
 3. Paste it into the **SSH key content** box, which is in the **Add public SSH key** popup.
-   ![image-20210727222512067](\docs\screenshots\image-20210727222512067.png)
+   ![image-20210727222512067](docs/screenshots/image-20210727222512067.png)
 4. Enter ``DEPLOY_NAME-ROOT_DOMAIN-root`` (*example* ``latest-lpuc-root``) as the **Name**.
 5. Click **Add SSH Key**.
 
@@ -138,7 +138,7 @@ This part of the tutorial is derived from an [article](https://danielwachtel.com
 2. Select **Create Droplet**.
 3. Wait for the Droplet to be created.
 4. Note the IPV4 address of your droplet in the top-left corner as ``BACKEND_DROPLET_IPV4`` (highlighted in yellow).
-   ![image-20210727225556294](\docs\screenshots\image-20210727225556294.png)
+   ![image-20210727225556294](docs/screenshots/image-20210727225556294.png)
 
 #### Install NGINX Web Server on the Droplet
 
@@ -151,25 +151,25 @@ The following steps assume the droplet private key is located in the `~/.ssh` fo
 3. Enter the private key passphrase.
 4. You will be logged into the droplet as root.
 5. Run ``apt-get install nginx`` 
-   ![image-20210727233426171](\docs\screenshots\image-20210727233426171.png)
+   ![image-20210727233426171](docs/screenshots/image-20210727233426171.png)
 
 ##### Test the Web Server
 
 1. Open a web browser.
 2. Enter ``http://BACKEND_DROPLET_IPV4`` in the address bar. You must use HTTP, because HTTPS has not been set up yet.
 3. Expect to see the test page.
-   ![image-20210726102345924](\docs\screenshots\image-20210726102345924.png)
+   ![image-20210726102345924](docs/screenshots/image-20210726102345924.png)
 
 #### Register your Root Domain
 
 1. Sign into [Amazon Route 53](https://aws.amazon.com/) using your AWS account.
 
 2. In the Register domain section, find and buy your choice of ``ROOT_DOMAIN``.
-   ![image-20210725185842549](\docs\screenshots\image-20210725185842549.png)
+   ![image-20210725185842549](docs/screenshots/image-20210725185842549.png)
 
 3. Wait for domain name registration to complete.
 
-   ![image-20210725190438608](\docs\screenshots\image-20210725190438608.png)
+   ![image-20210725190438608](docs/screenshots/image-20210725190438608.png)
 
 #### Add an A Record for the Droplet
 
@@ -185,10 +185,10 @@ An [A record](https://support.dnsimple.com/articles/a-record/#whats-an-a-record)
 2. Select Hosted Zones. 
 
 3. Select the ``ROOT_DOMAIN`` you created in the previous step. This hosted zone was created automatically in the previous step.
-   ![image-20210731143437729](\docs\screenshots\image-20210731143437729.png)
+   ![image-20210731143437729](docs/screenshots/image-20210731143437729.png)
 
 4. You will see 2 records: NS and SOA. Select **Create Record** in the top left. 
-   ![image-20210731145258815](\docs\screenshots\image-20210731145258815.png)
+   ![image-20210731145258815](docs/screenshots/image-20210731145258815.png)
 
 5. Under **Record name** enter ``latest.b``
 
@@ -198,7 +198,7 @@ An [A record](https://support.dnsimple.com/articles/a-record/#whats-an-a-record)
 
 8. Select **Create records**.
 
-   ![image-20210731150311222](\docs\screenshots\image-20210731150311222.png)
+   ![image-20210731150311222](docs/screenshots/image-20210731150311222.png)
 
 9. The newly created A record will show in the list. Wait at least 60 seconds for the DNS change to propagate. 
 
@@ -207,7 +207,7 @@ An [A record](https://support.dnsimple.com/articles/a-record/#whats-an-a-record)
 1. Open a web browser.
 2. Enter ``http://LATEST_DROPLET_HOST`` in the address bar. You must use HTTP, because HTTPS has not been set up yet.
 3. Expect to see the test page.
-   ![image-20210726101734391](\docs\screenshots\image-20210726101734391.png)
+   ![image-20210726101734391](docs/screenshots/image-20210726101734391.png)
 
 #### Remove NGINX from the Droplet
 
@@ -240,7 +240,7 @@ chmod +x /usr/local/bin/docker-compose
 When finished, run ``docker-compose -v``.
 
 Expect to see:
-![image-20210731190025294](\docs\screenshots\image-20210731190025294.png)
+![image-20210731190025294](docs/screenshots/image-20210731190025294.png)
 
 #### Add a Non-root User to the Droplet
 
@@ -290,7 +290,7 @@ This step verifies that you can use SSH to connect to the backend droplet as ``d
 1. Open a Bash shell on your local machine.
 2. Run ``ssh deployer@LATEST_DROPLET_HOST`` (*example* ``ssh deployer@latest.b.lpuc.uk``).
 3. Expect the SSH connection to open successfully.
-   ![image-20210731181722965](\docs\screenshots\image-20210731181722965.png)
+   ![image-20210731181722965](docs/screenshots/image-20210731181722965.png)
 
 ### Database
 
@@ -353,7 +353,7 @@ In this tutorial, we will set up a DigitalOcean managed database in the same dat
 17. Under **Connection Details** select **VPC network**.
 18. Under **User** select ``deployer``.
 19. Under **Database/Pool** select ``latest-lpuc-db``.
-    ![image-20210801134904372](\docs\screenshots\image-20210801134904372.png)
+    ![image-20210801134904372](docs/screenshots/image-20210801134904372.png)
 20. Record the following:
 
 | Variable Name                            | Connection Details Name | Example                                |
@@ -374,10 +374,10 @@ In this tutorial, we will set up a DigitalOcean managed database in the same dat
 2. Sign into GitHub.
 
 3. Select the **Fork** button in the top-right corner.
-   ![image-20210801150235279](\docs\screenshots\image-20210801150235279.png)
+   ![image-20210801150235279](docs/screenshots/image-20210801150235279.png)
 
 4. The forked repository will open.
-   ![image-20210801150823478](\docs\screenshots\image-20210801150823478.png)
+   ![image-20210801150823478](docs/screenshots/image-20210801150823478.png)
 
 #### Define GitHub Secrets
 
@@ -389,7 +389,7 @@ In this tutorial, we will set up a DigitalOcean managed database in the same dat
 
 3. Select the **New repository secret** button.
 
-   ![image-20210801153144869](\docs\screenshots\image-20210801153144869.png)
+   ![image-20210801153144869](docs/screenshots/image-20210801153144869.png)
 
 4. Under **Name** enter ``DB_HOST``.
 
@@ -425,7 +425,7 @@ In this tutorial, we will set up a DigitalOcean managed database in the same dat
 2. If this is the first time, you will see a warning message. When you are satisfied, select **I understand my workflows, go ahead and enable them**.
 3. Select the workflow **CI** from the left menu.
 4. Select **Run workflow**
-   ![image-20210801170204562](\docs\screenshots\image-20210801170204562.png) 
+   ![image-20210801170204562](docs/screenshots/image-20210801170204562.png) 
 
 
 
