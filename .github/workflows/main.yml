@@ -122,12 +122,6 @@ jobs:
       - name: Add the droplet to known hosts. This helps to dodge a "not seen this host before" question when connecting with SSH.
         shell: bash
         run: ssh-keyscan -H ${{ secrets[needs.distname_job.outputs.PTR_DROPLET_HOST] }} >> ~/.ssh/known_hosts
-        
-      - name: Copy in the database provider CA certificate. Remove carriage returns. This must be a GitHub secret.
-        shell: bash
-        run: |
-          ssh ${{ secrets[needs.distname_job.outputs.PTR_DROPLET_USERNAME] }}@${{ secrets[needs.distname_job.outputs.PTR_DROPLET_HOST] }} -T "mkdir -p ~/.postgresql && touch ~/.postgresql/root.crt"       
-          echo "${{ secrets.DB_SSLCA }}" | tr -d '\r' | ssh ${{ secrets[needs.distname_job.outputs.PTR_DROPLET_USERNAME] }}@${{ secrets[needs.distname_job.outputs.PTR_DROPLET_HOST] }} -T ">> ~/.postgresql/root.crt"
 
       - name: Add a docker context for running commands on the droplet and not the local machine.
         shell: bash
@@ -157,7 +151,7 @@ jobs:
           docker-compose --context remote up --build -d
         env:
           # Tag for the cuplbackend image.
-          DOCKERTAG:             'master'
+          DOCKERTAG:             ${{ needs.distname_job.outputs.DOCKERTAG }}
           # Randomised strings for cuplbackend.
           ADMINAPI_CLIENTSECRET: ${{ secrets[needs.distname_job.outputs.PTR_ADMINAPI_CLIENTSECRET] }}
           TAGTOKEN_CLIENTSECRET: ${{ secrets[needs.distname_job.outputs.PTR_TAGTOKEN_CLIENTSECRET] }}
