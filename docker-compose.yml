@@ -7,12 +7,13 @@ services:
  cuplbackend:
    restart: 'on-failure'
    env_file: .env
-   image: "cupl/backend:${DOCKERTAG}"
+   image: "ghcr.io/cuplsensor/cuplbackend:master"
    environment:
      - DB_HOST
      - DB_NAME
      - DB_PORT
      - DB_USER
+     - DB_SSLMODE
      - DROP_ON_INIT
      - WSB_PORT
      - SERVER_NAME

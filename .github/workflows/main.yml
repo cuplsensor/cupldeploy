@@ -15,7 +15,7 @@ on:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   distname_job:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     name: Set environment name based on the event.
     outputs:
       DISTNAME:                     ${{ steps.set_distname.outputs.DISTNAME }}
@@ -84,12 +84,18 @@ jobs:
           CUPLDEPLOY_SHORT_SHA1=$(echo ${GITHUB_SHA} | cut -c1-7)
           CUPLFRONTEND_SHORT_SHA1=$(git ls-tree HEAD cuplfrontend | awk '{print substr($3,0,7)}')
           CUPLBACKEND_SHORT_SHA1=$(git ls-tree HEAD cuplbackend | awk '{print substr($3,0,7)}')
+          if ${{ github.event_name == 'release' }}; then
+              echo "::set-output name=DOCKERTAG::$CUPLBACKEND_SHORT_SHA1"
+          else
+              echo "::set-output name=DOCKERTAG::master"
+          fi
           echo $CUPLDEPLOY_SHORT_SHA1
           echo $CUPLFRONTEND_SHORT_SHA1
           echo $CUPLBACKEND_SHORT_SHA1
           echo "::set-output name=CUPLDEPLOY_SHORT_SHA1::${CUPLDEPLOY_SHORT_SHA1}"
           echo "::set-output name=CUPLFRONTEND_SHORT_SHA1::${CUPLFRONTEND_SHORT_SHA1}"
           echo "::set-output name=CUPLBACKEND_SHORT_SHA1::${CUPLBACKEND_SHORT_SHA1}"
+          
         
   backend_to_droplet:
     runs-on: ubuntu-20.04
@@ -108,7 +114,11 @@ jobs:
       - name: Copy in an SSH private key for communicating with the droplet. Remove carriage returns. This must be a GitHub secret.
         shell: bash
         run: echo "${{ secrets[needs.distname_job.outputs.PTR_DROPLET_SSH_PRIVATE_KEY] }}" | tr -d '\r' >> ~/.ssh/id_rsa
-
+        
+      - name: Tighten permissions on the private key file. Required for SSH to work later on.
+        shell: bash
+        run: chmod 400 ~/.ssh/id_rsa
+        
       - name: Add the droplet to known hosts. This helps to dodge a "not seen this host before" question when connecting with SSH.
         shell: bash
         run: ssh-keyscan -H ${{ secrets[needs.distname_job.outputs.PTR_DROPLET_HOST] }} >> ~/.ssh/known_hosts
@@ -125,7 +135,7 @@ jobs:
         shell: bash
         run: |
           sudo rm /usr/local/bin/docker-compose
-          sudo pip install docker-compose==1.27.4 #docker-compose down --rmi all --remove-orphans
+          sudo pip install docker-compose==1.27.4 
         
       - name: Pull new containers
         shell: bash
@@ -135,11 +145,13 @@ jobs:
       - name: Build and run containers on the droplet with docker-compose
         shell: bash
         run: |
+          docker-compose --context remote stop
+          docker-compose --context remote rm -f
           docker-compose --context remote pull 
           docker-compose --context remote up --build -d
         env:
           # Tag for the cuplbackend image.
-          DOCKERTAG:             ${{ needs.distname_job.outputs.CUPLBACKEND_SHORT_SHA1 }}
+          DOCKERTAG:             ${{ needs.distname_job.outputs.DOCKERTAG }}
           # Randomised strings for cuplbackend.
           ADMINAPI_CLIENTSECRET: ${{ secrets[needs.distname_job.outputs.PTR_ADMINAPI_CLIENTSECRET] }}
           TAGTOKEN_CLIENTSECRET: ${{ secrets[needs.distname_job.outputs.PTR_TAGTOKEN_CLIENTSECRET] }}
@@ -152,6 +164,7 @@ jobs:
           DB_NAME:               ${{ secrets[needs.distname_job.outputs.PTR_DB_NAME] }}
           DB_HOST:               ${{ secrets.DB_HOST }}
           DB_PORT:               ${{ secrets.DB_PORT }}
+
           # Miscellaneous cuplbackend environment variables.
           SERVER_NAME:           ${{ secrets[needs.distname_job.outputs.PTR_DROPLET_HOST] }}
           DROP_ON_INIT:          'false'
