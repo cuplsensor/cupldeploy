@@ -2,11 +2,11 @@
 
 There are 3 workflows in [main.yml](.github/workflows/main.yml). These are run by a [GitHub Action](https://github.com/features/actions) whenever a commit is pushed to GitHub. The workflows build and run cuplfrontend / cuplbackend on the AWS / DigitalOcean infrastructure described above. 
 
-![GitHub Workflows](../docs/ghworkflows.png)
+![GitHub Workflows](/docs/ghworkflows.png)
 
 Application versions are specified by commit hashes of Git submodules in this parent repository. In this way, cupldeploy documents which submodule versions are compatible with one another.
 
-![GitHub Submodules](../docs/ghsubmodules.png)
+![GitHub Submodules](/docs/ghsubmodules.png)
 
 ### Frontend Workflow
 
