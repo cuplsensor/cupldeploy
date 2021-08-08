@@ -365,8 +365,6 @@ In this tutorial, we will set up a DigitalOcean managed database in the same dat
 | <a name="db_name"></a>``LATEST_DB_NAME`` | ``database``            | ``latest-lpuc-db``                     |
 | <a name="db_sslmode"></a>``DB_SSLMODE``  | ``sslmode``             | ``require``                            |
 
-21. Click **Download CA certificate**. This text file contains a certificate for the Root CA. Its contents will later be pasted into the GitHub Secret <a name="DB_SSLROOTCERT"></a>``DB_SSLROOTCERT``. 
-
 ### Run cupldeploy
 
 #### Fork the Git Repository
@@ -408,7 +406,6 @@ In this tutorial, we will set up a DigitalOcean managed database in the same dat
 | ``DB_PORT``                        | [link](#db_password)                    |
 | ``LATEST_DB_NAME``                 | [link](#db_name)                        |
 | ``DB_SSLMODE``                     | [link](#db_sslmode)                     |
-| ``DB_SSLROOTCERT``                 | [link](#DB_SSLROOTCERT)                 |
 | ``LATEST_DROPLET_USERNAME``        | [link](#latest_droplet_username)        |
 | ``LATEST_DROPLET_SSH_PRIVATE_KEY`` | [link](#latest_droplet_ssh_private_key) |
 | ``LATEST_DROPLET_HOST``            | [link](#latest_droplet_host)            |
