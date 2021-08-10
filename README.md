@@ -40,15 +40,7 @@ The 3 services run on a single Docker instance using [Docker Compose](https://do
 2. The [cuplbackend](https://hub.docker.com/r/cupl/backend) web application. It is built atop of the [Flask](https://flask.palletsprojects.com/en/1.1.x/) framework. The application exposes [two HTTPS APIs](https://cupl.readthedocs.io/projects/backend/en/latest/docs/api/index.html). The interface is text only: data are read and written as [JSON](https://en.wikipedia.org/wiki/JSON). Data are persisted in an external PostgreSQL database.
 3. A [Redis](https://hub.docker.com/_/redis) instance. A cuplbackend dependency named [Flask-Limiter](https://flask-limiter.readthedocs.io/en/stable/) uses this to record and block API requests. 
 
-# Installation Guide
-
-## Prerequisites
-
-1. A [GitHub](https://github.com/) account.
-2. A [DigitalOcean](https://www.digitalocean.com/) account. 
-3. An [AWS](https://aws.amazon.com/) account. 
-
-## Outputs
+## Installation 
 
 This tutorial demonstrates how to run the cupl web application, which consists of a [frontend](https://github.com/cuplsensor/cuplfrontend) and a [backend](https://github.com/cuplsensor/cuplbackend). This will be set up on your own infrastructure, accessible from a  [``ROOT_DOMAIN``](https://moz.com/blog/understanding-root-domains-subdomains-vs-subfolders-microsites) of your choice. 
 
@@ -63,29 +55,20 @@ Each deployment has a ``DEPLOY_NAME``:
 * Production deployment (optional). These are named `dX` where X is any integer.
   *example* ``DEPLOY_NAME = d3``
 
-### Backend
+|  | Frontend |Backend|
+| ------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| Functionality | View cuplTag data. Plot samples in charts and export CSV files. | Stores / retrieves cuplTag samples and metadata from a database. |
+| Interface           | Graphical ([screenshots](https://cupl.co.uk/index.php/software/cuplfrontend/cuplfrontend-consumer-features/)) | Text-based API ([docs](https://cupl.readthedocs.io/projects/backend/en/latest/docs/api/index.html)) |
+| Subdomain *schema*  | ``DEPLOY_NAME.f.ROOT_DOMAIN`` | ``DEPLOY_NAME.b.ROOT_DOMAIN``                         |
+| Subdomain *example* | https://latest.f.cupl.uk | https://latest.b.cupl.uk                                    |
+| Protocol            | HTTPS       | HTTPS                                                        |
+| Host | [AWS Cloudfront CDN](https://aws.amazon.com/cloudfront/) | [DigitalOcean Droplet](https://www.digitalocean.com/products/droplets/) |
+  
+### Prerequisites
 
-| Parameter           | Description                                                  |
-| ------------------- | ------------------------------------------------------------ |
-| Functionality       | Stores / retrieves cuplTag samples and metadata from a database. |
-| Interface           | Text-based API ([docs](https://cupl.readthedocs.io/projects/backend/en/latest/docs/api/index.html)) |
-| Subdomain *schema*  | ``DEPLOY_NAME.b.ROOT_DOMAIN``                                |
-| Subdomain *example* | https://latest.b.cupl.uk                                     |
-| Protocol            | HTTPS                                                        |
-| Host                | [DigitalOcean Droplet](https://www.digitalocean.com/products/droplets/) |
-
-### Frontend
-
-| Parameter           | Description                                                  |
-| ------------------- | ------------------------------------------------------------ |
-| Functionality       | View cuplTag data. Plot samples in charts and export CSV files. |
-| Interface           | Graphical ([screenshots](https://cupl.co.uk/index.php/software/cuplfrontend/cuplfrontend-consumer-features/)) |
-| Subdomain *schema*  | ``DEPLOY_NAME.f.ROOT_DOMAIN``                                |
-| Subdomain *example* | https://latest.f.cupl.uk                                     |
-| Protocol            | HTTPS                                                        |
-| Host                | [AWS Cloudfront CDN](https://aws.amazon.com/cloudfront/)     |
-
-## Installation
+1. A [GitHub](https://github.com/) account.
+2. A [DigitalOcean](https://www.digitalocean.com/) account. 
+3. An [AWS](https://aws.amazon.com/) account. 
 
 ### Backend
 
