@@ -420,7 +420,7 @@ In this tutorial, we will set up a DigitalOcean managed database in the same dat
 3. Select the workflow **CI** from the left menu.
 4. Select **Run workflow**
    ![image-20210801170204562](docs/screenshots/image-20210801170204562.png)
-5. Expect to see 2 out of the 3 tasks pass with a green tick. Refer to [troubleshooting](#troubleshooting-cuplbackend) if the backend deployment task 'Use docker-compose over SSH to run cuplbackend...' fails. 
+5. Expect to see 2 out of the 3 tasks pass with a green tick. Refer to [troubleshooting](#troubleshooting-cuplbackend) if the backend deployment task 'Use docker-compose over SSH to run cuplbackend...' fails. It is normal for the frontend deployment 'Build react app and copy to S3' to fail at this stage. 
    ![screenshot](docs/screenshots/cupldeploy_cuplbackend.png)
 
 #### Test cuplbackend
