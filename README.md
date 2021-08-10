@@ -404,11 +404,11 @@ In this tutorial, we will set up a DigitalOcean managed database in the same dat
 3. Select the workflow **CI** from the left menu.
 4. Select **Run workflow**
    ![image-20210801170204562](docs/screenshots/image-20210801170204562.png)
-5. Expect to see 2 out of the 3 tasks pass with a green tick. Refer to [troubleshooting](#troubleshooting-cuplbackend) if the backend deployment task 'Use docker-compose over SSH to run cuplbackend...' fails. It is normal for the frontend deployment 'Build react app and copy to S3' to fail at this stage. 
+5. Expect to see 2 out of the 3 tasks pass with a green tick. Refer to [troubleshooting](docs/Troubleshooting.md#Backend) if the backend deployment task 'Use docker-compose over SSH to run cuplbackend...' fails. It is normal for the frontend deployment 'Build react app and copy to S3' to fail at this stage. 
    ![screenshot](docs/screenshots/cupldeploy_cuplbackend.png)
 
 #### Test cuplbackend
-If either of these tests fail, see [troubleshooting](#troubleshooting-cuplbackend).
+If either of these tests fail, see [troubleshooting](docs/Troubleshooting.md#Backend).
 
 1. In a web browser, navigate to ``latest.b.ROOT_DOMAIN`` (*example* ``latest.b.lpuc.uk``). Expect to see:
    ![screenshot](docs/screenshots/cuplbackend_running.png)
@@ -416,8 +416,6 @@ If either of these tests fail, see [troubleshooting](#troubleshooting-cuplbacken
 2. Click on the Consumer API Root link. Expect to see the page below. The consumer API is being served.
    ![screenshot](docs/screenshots/consumer_api_running.png)
 
-#### Troubleshooting cuplbackend
-The best way to find out why the page is not being served is to SSH into your droplet as root and then to run ``docker ps``. You will see a list of running docker containers and  names for each. To find out what is wrong with the backend container, enter ``docker logs cupldeploy_cuplbackend_1``. This will print out log messages from the Flask application. If, for example, there is a problem connecting to the database, it will be reported here.
 
 
 
