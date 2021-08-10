@@ -40,15 +40,15 @@ The 3 services run on a single Docker instance using [Docker Compose](https://do
 2. The [cuplbackend](https://hub.docker.com/r/cupl/backend) web application. It is built atop of the [Flask](https://flask.palletsprojects.com/en/1.1.x/) framework. The application exposes [two HTTPS APIs](https://cupl.readthedocs.io/projects/backend/en/latest/docs/api/index.html). The interface is text only: data are read and written as [JSON](https://en.wikipedia.org/wiki/JSON). Data are persisted in an external PostgreSQL database.
 3. A [Redis](https://hub.docker.com/_/redis) instance. A cuplbackend dependency named [Flask-Limiter](https://flask-limiter.readthedocs.io/en/stable/) uses this to record and block API requests. 
 
-## Installation Guide
+# Installation Guide
 
-### Prerequisites
+## Prerequisites
 
 1. A [GitHub](https://github.com/) account.
 2. A [DigitalOcean](https://www.digitalocean.com/) account. 
 3. An [AWS](https://aws.amazon.com/) account. 
 
-### Outputs
+## Outputs
 
 This tutorial demonstrates how to run the cupl web application, which consists of a [frontend](https://github.com/cuplsensor/cuplfrontend) and a [backend](https://github.com/cuplsensor/cuplbackend). This will be set up on your own infrastructure, accessible from a  [``ROOT_DOMAIN``](https://moz.com/blog/understanding-root-domains-subdomains-vs-subfolders-microsites) of your choice. 
 
@@ -63,7 +63,7 @@ Each deployment has a ``DEPLOY_NAME``:
 * Production deployment (optional). These are named `dX` where X is any integer.
   *example* ``DEPLOY_NAME = d3``
 
-#### Backend
+### Backend
 
 | Parameter           | Description                                                  |
 | ------------------- | ------------------------------------------------------------ |
@@ -74,7 +74,7 @@ Each deployment has a ``DEPLOY_NAME``:
 | Protocol            | HTTPS                                                        |
 | Host                | [DigitalOcean Droplet](https://www.digitalocean.com/products/droplets/) |
 
-#### Frontend
+### Frontend
 
 | Parameter           | Description                                                  |
 | ------------------- | ------------------------------------------------------------ |
@@ -85,41 +85,39 @@ Each deployment has a ``DEPLOY_NAME``:
 | Protocol            | HTTPS                                                        |
 | Host                | [AWS Cloudfront CDN](https://aws.amazon.com/cloudfront/)     |
 
-### Installation
+## Installation
 
-#### Backend
+### Backend
 
-##### Create the Backend Droplet
+#### Create the Backend Droplet
 
 This part of the tutorial is derived from an [article](https://danielwachtel.com/devops/deploying-multiple-dockerized-apps-digitalocean-docker-compose-contexts) by Daniel Wachtel.
 
-###### Start Droplet Specification
+##### Start Droplet Specification
 
 1. Sign into [DigitalOcean](https://cloud.digitalocean.com). 
 2. Select [Droplets](https://cloud.digitalocean.com/droplets) from the left menu.
 3. Select **Create Droplet**.
 4. Select a datacenter (*example* San Francisco 3). 
-5. Keep the defaults:
+5. Keep the defaults ([screenshot](docs/screenshots/image-20210727215012705.png)):
    * Ubuntu 20.04 (LTS) x64.
    * Basic Shared CPU.
    * Regular Intel with 2GB of RAM.
-     ![image-20210727215012705](docs/screenshots/image-20210727215012705.png)
 6. The **monitoring** add-on is recommended.
 7. Under **Authentication** select **SSH keys**.
 8. Select **New SSH Key**
 9. The **Add public SSH key** popup will open.
 
-###### Create an SSH Key Pair for the Root User
+##### Create an SSH Key Pair for the Root User
 
 1. Open a Bash shell on your local machine.
 2. Run ``cd ~/.ssh``
 3. Run ``ssh-keygen``.
-   <p><img src="docs/screenshots/image-20210727230015823.png" width="50%"></p>
 4. Name your keypair ``DEPLOY_NAME-ROOT_DOMAIN-root``  (*example* ``latest-lpuc-root``).
 5. Enter a passphrase. 
 6. Press ENTER and the key pair (a public and private key) will be generated. 
 
-###### Copy the Public Key to the Droplet
+##### Copy the Public Key to the Droplet
 
 1. Run  ``cat DEPLOY_NAME-ROOT_DOMAIN-root.pub`` (*example* ``cat latest-lpuc-root.pub``) to display the public key.
 2. Copy the public key.
@@ -128,11 +126,11 @@ This part of the tutorial is derived from an [article](https://danielwachtel.com
 4. Enter ``DEPLOY_NAME-ROOT_DOMAIN-root`` (*example* ``latest-lpuc-root``) as the **Name**.
 5. Click **Add SSH Key**.
 
-###### Back up the Private Key
+##### Back up the Private Key
 
 *Recommendation:* store the private key and the passphrase in a secure location, such as a password manager. If you lose these credentials, you will lose root access to your droplet, which is needed to install security updates. The private key can be seen by entering ``cat DEPLOY_NAME-ROOT_DOMAIN-root`` without the .pub suffix.
 
-###### Finalize Droplet Specification
+##### Finalize Droplet Specification
 
 1. Under **Choose a hostname** enter ``cupldeploy-DEPLOY_NAME-ROOT_DOMAIN`` (*example* ``cupldeploy-latest-lpuc``).
 2. Select **Create Droplet**.
@@ -140,7 +138,7 @@ This part of the tutorial is derived from an [article](https://danielwachtel.com
 4. Note the IPV4 address of your droplet in the top-left corner as ``BACKEND_DROPLET_IPV4`` (highlighted in yellow).
    ![image-20210727225556294](docs/screenshots/image-20210727225556294.png)
 
-##### Install NGINX Web Server on the Droplet
+#### Install NGINX Web Server on the Droplet
 
 NGINX is installed here for test purposes and removed later. The test web page *Welcome to NGINX!* shows your droplet (and later your DNS) is running ok.
 
@@ -151,16 +149,16 @@ The following steps assume the droplet private key is located in the `~/.ssh` fo
 3. Enter the private key passphrase.
 4. You will be logged into the droplet as root.
 5. Run ``apt-get install nginx`` 
-   ![image-20210727233426171](docs/screenshots/image-20210727233426171.png)
 
-###### Test the Web Server
+![image-20210727233426171](docs/screenshots/image-20210727233426171.png)
+
+##### Test the Web Server
 
 1. Open a web browser.
 2. Enter ``http://BACKEND_DROPLET_IPV4`` in the address bar. You must use HTTP, because HTTPS has not been set up yet.
-3. Expect to see the test page.
-   ![image-20210726102345924](docs/screenshots/image-20210726102345924.png)
+3. Expect to see the nginx test page ([screenshot](docs/screenshots/image-20210726102345924.png)).
 
-##### Register your Root Domain
+#### Register your Root Domain
 
 1. Sign into [Amazon Route 53](https://aws.amazon.com/) using your AWS account.
 
@@ -171,7 +169,7 @@ The following steps assume the droplet private key is located in the `~/.ssh` fo
 
    ![image-20210725190438608](docs/screenshots/image-20210725190438608.png)
 
-##### Add an A Record for the Droplet
+#### Add an A Record for the Droplet
 
 <a name="latest_droplet_host"></a>
 The backend web application should be accessible from a domain name and not just an IP address. 
@@ -202,14 +200,13 @@ An [A record](https://support.dnsimple.com/articles/a-record/#whats-an-a-record)
 
 9. The newly created A record will show in the list. Wait at least 60 seconds for the DNS change to propagate. 
 
-###### Test the A Record
+##### Test the A Record
 
 1. Open a web browser.
 2. Enter ``http://LATEST_DROPLET_HOST`` in the address bar. You must use HTTP, because HTTPS has not been set up yet.
-3. Expect to see the test page.
-   ![image-20210726101734391](docs/screenshots/image-20210726101734391.png)
+3. Expect to see the test page ([screenshot](docs/screenshots/image-20210726101734391.png)).
 
-##### Remove NGINX from the Droplet
+#### Remove NGINX from the Droplet
 
 NGINX is no longer needed, so uninstall it from your droplet. Instructions are similar to those used for installation.
 
@@ -220,11 +217,11 @@ NGINX is no longer needed, so uninstall it from your droplet. Instructions are s
 5. Run ``apt-get remove nginx nginx-common``, then ``Y`` to confirm.
 6. The server still runs after removal. Run ``killall nginx`` to stop it. 
 
-##### Install Docker on the Droplet
+#### Install Docker on the Droplet
 
 Whilst still connected to the droplet as ``root``, [install the latest version of docker using the repository](https://docs.docker.com/engine/install/ubuntu/#install-using-the-repository).
 
-##### Install Docker-Compose on the Droplet
+#### Install Docker-Compose on the Droplet
 
 The [GitHub Actions Runner](https://github.com/cuplsensor/cupldeploy/blob/main/.github/workflows/main.yml) uses the [Docker Contexts](https://www.docker.com/blog/how-to-deploy-on-remote-docker-hosts-with-docker-compose/) feature to deploy containers onto the (remote) droplet. 
 
@@ -240,9 +237,10 @@ chmod +x /usr/local/bin/docker-compose
 When finished, run ``docker-compose -v``.
 
 Expect to see:
+
 ![image-20210731190025294](docs/screenshots/image-20210731190025294.png)
 
-##### Add a Non-root User to the Droplet
+#### Add a Non-root User to the Droplet
 
 <a name="latest_droplet_username"></a>
 
@@ -257,7 +255,7 @@ In this tutorial, ``LATEST_DROPLET_USERNAME = deployer``.
    1. Run ``sudo groupadd docker``.
    2. Run ``sudo usermod -aG docker deployer``.
 
-##### Create an SSH key pair for ``deployer``
+#### Create an SSH key pair for ``deployer``
 
 This should be done on your local machine. Do not create the key pair on the droplet. 
 
@@ -266,7 +264,7 @@ This should be done on your local machine. Do not create the key pair on the dro
 3. Name your keypair ``DEPLOY_NAME-ROOT_DOMAIN-deployer``  (*example* ``latest-lpuc-deployer``).
 4. *Do not* create a passphrase for this key pair.
 
-###### Copy the Public Key for ``deployer`` to the Droplet
+##### Copy the Public Key for ``deployer`` to the Droplet
 
 The script below is thanks to [Michael Wyraz](https://superuser.com/a/978182). Modify it according to your needs and run on your local machine. It:
 
@@ -277,24 +275,23 @@ The script below is thanks to [Michael Wyraz](https://superuser.com/a/978182). M
 cat ~/.ssh/latest-lpuc-deployer.pub | ssh root@latest.b.lpuc.uk "sudo mkdir /home/deployer/.ssh; sudo tee -a /home/deployer/.ssh/authorized_keys"
 ```
 
-###### Save the Private Key for Later
+##### Save the Private Key for Later
 
 View the private key by entering ``cat DEPLOY_NAME-ROOT_DOMAIN-deployer`` (*example* ``latest-lpuc-deployer``).
 
 From now on, this will be known as <a name="latest_droplet_ssh_private_key"></a>``LATEST_DROPLET_SSH_PRIVATE_KEY``. Save it to your password manager.
 
-###### Test the SSH Connection
+##### Test the SSH Connection
 
 This step verifies that you can use SSH to connect to the backend droplet as ``deployer``.
 
 1. Open a Bash shell on your local machine.
 2. Run ``ssh deployer@LATEST_DROPLET_HOST`` (*example* ``ssh deployer@latest.b.lpuc.uk``).
-3. Expect the SSH connection to open successfully.
-   ![image-20210731181722965](docs/screenshots/image-20210731181722965.png)
+3. Expect the SSH connection to open successfully ([screenshot](docs/screenshots/image-20210731181722965.png)).
 
-#### Database
+### Database
 
-The backend web application stores data in a Postgres 11 database. You can use any provider. The required by cupldeploy are:
+cuplbackend stores data in a Postgres 11 database. The connection is set by the following GitHub Secrets:
 
 ``DB_USER`` Database username.
 
@@ -320,14 +317,14 @@ postgresql://DB_USER:DB_PASS@DB_HOST:DB_PORT/LATEST_DB_NAME
 
 ---
 
-A managed solution with automatic backups is recommended for production. 
+Any database provider can be used, but a managed solution (with automatic backups) is recommended for production. 
 
 There are benefits to co-locating your database server with the backend application server (droplet):
 
 - Reduced latency.
 - Improved security. The DB server can communicate over a private network ([VPC](https://www.digitalocean.com/products/vpc/)). There is no need to expose it to the internet.
 
-##### Create a DigitalOcean Database
+#### Create a DigitalOcean Database
 
 In this tutorial, we will set up a DigitalOcean managed database in the same datacenter that hosts our droplet. 
 
@@ -336,24 +333,20 @@ In this tutorial, we will set up a DigitalOcean managed database in the same dat
 3. Select **Create a Database Cluster**.
 4. Under **Choose a database engine** select **PostgreSQL version 11**.
 5. The default cluster configuration will work.
-6. Select the same datacenter that your droplet is in (*example* San Francisco 3). 
-   ![image-20210801131134395](docs/screenshots/image-20210801131134395.png | width=100)
+6. Select the same datacenter that your droplet is in (*example* San Francisco 3). ([screenshot](docs/screenshots/image-20210801131134395.png))
 7. Under **Choose a unique database cluster name** enter ``db-postgresql-DATACENTER-ROOT_DOMAIN`` (*example* ``db-postgresql-sfo3-lpuc``).
 8. Select the green **Create a Database Cluster** button.
 9. You will enter the getting started step-by-step, whilst the database is provisioned. Click **Get Started**.
-10. Under **Add trusted sources** enter the name of your droplet. 
-    ![image-20210801132313788](docs/screenshots/image-20210801132313788.png | width=100)
+10. Under **Add trusted sources** enter the name of your droplet. ([screenshot](docs/screenshots/image-20210801132313788.png))
 11. Select **Allow these inbound sources only**.
 12. Select **Continue, I'll do this later** followed by **Great, I'm done**.
 13. From the top menu, select **Users & Databases**.
 14. Under **Add new user** enter ``deployer`` followed by **Save**.
-15. Under **Add new database** enter ``latest-lpuc-db`` followed by **Save**. An empty database will be created.
-    ![image-20210801133623482](docs/screenshots/image-20210801133623482.png | width=100)
+15. Under **Add new database** enter ``latest-lpuc-db`` followed by **Save**. An empty database will be created. ([screenshot](docs/screenshots/image-20210801133623482.png))
 16. Finally we will note our database credentials. From the top menu, select **Overview**.
 17. Under **Connection Details** select **VPC network**.
 18. Under **User** select ``deployer``.
-19. Under **Database/Pool** select ``latest-lpuc-db``.
-    ![image-20210801134904372](docs/screenshots/image-20210801134904372.png | width=100)
+19. Under **Database/Pool** select ``latest-lpuc-db``. ([screenshot](docs/screenshots/image-20210801134904372.png))
 20. Record the following:
 
 | Variable Name                            | Connection Details Name | Example                                |
@@ -365,9 +358,9 @@ In this tutorial, we will set up a DigitalOcean managed database in the same dat
 | <a name="db_name"></a>``LATEST_DB_NAME`` | ``database``            | ``latest-lpuc-db``                     |
 | <a name="db_sslmode"></a>``DB_SSLMODE``  | ``sslmode``             | ``require``                            |
 
-#### Run cupldeploy
+### Run cupldeploy
 
-##### Fork the Git Repository
+#### Fork the Git Repository
 
 1. Navigate to [https://github.com/cuplsensor/cupldeploy](https://github.com/cuplsensor/cupldeploy).
 
@@ -377,9 +370,10 @@ In this tutorial, we will set up a DigitalOcean managed database in the same dat
    ![image-20210801150235279](docs/screenshots/image-20210801150235279.png)
 
 4. The forked repository will open.
-   ![image-20210801150823478](docs/screenshots/image-20210801150823478.png)
 
-##### Define GitHub Secrets
+![image-20210801150823478](docs/screenshots/image-20210801150823478.png)
+
+#### Define GitHub Secrets
 
 [GitHub Secrets](https://docs.github.com/en/actions/reference/encrypted-secrets) are a means of providing sensitive strings to [Actions](https://docs.github.com/en/actions) scripts. Similar to environment variables, these must be defined for your forked repository for Actions to run successfully. Secrets ensure that sensitive data are not stored in the GitHub repository itself.
 
@@ -419,15 +413,27 @@ In this tutorial, we will set up a DigitalOcean managed database in the same dat
 
 *Recommendation:* Random strings should be at least 20 characters in length, mixed case and contain letters, symbols and numbers.
 
-##### Run the Deployment Action
+#### Run the Deployment Action
 
 1. Select **Actions** from the top menu.
 2. If this is the first time, you will see a warning message. When you are satisfied, select **I understand my workflows, go ahead and enable them**.
 3. Select the workflow **CI** from the left menu.
 4. Select **Run workflow**
-   ![image-20210801170204562](docs/screenshots/image-20210801170204562.png) 
+   ![image-20210801170204562](docs/screenshots/image-20210801170204562.png)
+5. Expect to see 2 out of the 3 tasks pass with a green tick. Refer to [troubleshooting](#troubleshooting-cuplbackend) if the backend deployment task 'Use docker-compose over SSH to run cuplbackend...' fails. 
+   ![screenshot](docs/screenshots/cupldeploy_cuplbackend.png)
 
+#### Test cuplbackend
+If either of these tests fail, see [troubleshooting](#troubleshooting-cuplbackend).
 
+1. In a web browser, navigate to ``latest.b.ROOT_DOMAIN`` (*example* ``latest.b.lpuc.uk``). Expect to see:
+   ![screenshot](docs/screenshots/cuplbackend_running.png)
+
+2. Click on the Consumer API Root link. Expect to see the page below. The consumer API is being served.
+   ![screenshot](docs/screenshots/consumer_api_running.png)
+
+#### Troubleshooting cuplbackend
+The best way to find out why the page is not being served is to SSH into your droplet as root and then to run ``docker ps``. You will see a list of running docker containers and  names for each. To find out what is wrong with the backend container, enter ``docker logs cupldeploy_cuplbackend_1``. This will print out log messages from the Flask application. If, for example, there is a problem connecting to the database, it will be reported here.
 
 
 
