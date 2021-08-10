@@ -391,6 +391,7 @@ In this tutorial, we will set up a DigitalOcean managed database in the same dat
 | ``LATEST_HASHIDS_SALT``            | \*** random string \***                 |
 | ``LATEST_CSRF_SESSION_KEY``        | \*** random string \***                 |
 | ``LATEST_SECRET_KEY``              | \*** random string \***                 |
+| ``CERTBOT_EMAIL``                  | Your email address                      |
 
 *Recommendation:* Save all secrets in a password manager. These will not be readable again on GitHub.
 
