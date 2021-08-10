@@ -168,7 +168,8 @@ jobs:
           # Miscellaneous cuplbackend environment variables.
           SERVER_NAME:           ${{ secrets[needs.distname_job.outputs.PTR_DROPLET_HOST] }}
           DROP_ON_INIT:          'false'
-          WSB_PORT:              5001 
+          WSB_PORT:              5001
+          CERTBOT_EMAIL:         ${{ secrets.CERTBOT_EMAIL }}
           # Flask-Limiter environment variables.
           RATELIMIT_STORAGE_URL: 'redis://redis_r1:6379'
           RATELIMIT_STRATEGY:    'moving-window'
