@@ -36,7 +36,7 @@ services:
    restart: unless-stopped
    build: ./nginx
    environment:
-     - CERTBOT_EMAIL=malcolm.mackay121@gmail.com
+     - CERTBOT_EMAIL
      - ENVSUBST_VARS=SERVER_NAME WSB_PORT
      - SERVER_NAME
      - WSB_PORT
