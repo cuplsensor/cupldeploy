@@ -416,9 +416,186 @@ If either of these tests fail, see [troubleshooting](docs/Troubleshooting.md#Bac
 2. Click on the Consumer API Root link. Expect to see the page below. The consumer API is being served.
    ![screenshot](docs/screenshots/consumer_api_running.png)
 
+### Frontend
 
+This part of the installation guide is based on an [article](https://medium.com/dailyjs/a-guide-to-deploying-your-react-app-with-aws-s3-including-https-a-custom-domain-a-cdn-and-58245251f081) by Andrew Bestbier.
 
+#### S3 Bucket
 
+##### Create
+
+1. Sign into [Amazon S3](https://console.aws.amazon.com/s3).
+2. Select **Create bucket**.
+   ![image-20210810180542417](C:\Users\malco\AppData\Roaming\Typora\typora-user-images\image-20210810180542417.png)
+3. Enter a unique **bucket name**. This will be referred to as <a name="AWS_S3_BUCKET"></a>``AWS_S3_BUCKET`` (*example* ``lpuc-frontend-bucket``). 
+4. Select an **AWS Region** where the bucket will be created. You can leave the default. This will be referred to as <a name="AWS_S3_REGION"></a>``AWS_S3_REGION`` (*example* ``us-east-2``).
+5. Uncheck **block all public access**. The web application will be hosted from here, so public access is required.
+6. Check **I acknowledge that the current settings... ** 
+7. Select **Create bucket**.
+
+##### Enable Static Web Hosting
+
+1. Select your ``AWS_S3_BUCKET``.
+   ![select-bucket](C:\Users\malco\Documents\Plotsensor\cupldeploy\docs\screenshots\select-bucket.png)
+2. Select the **Properties** tab.
+3. Scroll down to **Static website hosting** and enable it.
+4. Set the **Index document** to ``index.html``.
+5. Set the **Error document** to ``index.html``.
+6. Select **Save changes**.
+7. Your bucket will be assigned a URL.
+   ![image-20210810184411109](C:\Users\malco\AppData\Roaming\Typora\typora-user-images\image-20210810184411109.png)
+
+##### Edit Permissions
+
+When you visit the URL, you will see an error message ``403 Forbidden``. There is a problem with permissions.
+
+1. Return to the bucket settings and select the **Permissions** tab.
+
+2. Scroll down the **Bucket policy** section. Select **Edit**.
+
+3. Paste the following into the **Policy** text box, substituting ``lpuc-frontend-bucket`` with your ``AWS_S3_BUCKET`` name.
+
+   ```json
+   {
+       "Version": "2012-10-17",
+       "Statement": [
+           {
+               "Sid": "PublicReadGetObject",
+               "Effect": "Allow",
+               "Principal": "*",
+               "Action": "s3:GetObject",
+               "Resource": "arn:aws:s3:::lpuc-frontend-bucket/*"
+           }
+       ]
+   }
+   ```
+
+4. Select **Save changes**.
+
+5. Navigate to the bucket URL again and expect to see ``404 Not Found``. The bucket is empty for now.
+
+#### Create an AWS User with Limited Access
+
+1. Sign into AWS [Identity and Access Management](https://console.aws.amazon.com/iam).
+2. Select **Users** from the left-hand menu.
+   ![image-20210811095253005](C:\Users\malco\AppData\Roaming\Typora\typora-user-images\image-20210811095253005.png)
+3. Select **Add users**.
+4. Enter a **User name** (*example* ``lpuc-aws-user``).
+5. Check **Programmatic access**.
+6. Select **Next: Permissions**.
+7. Select **Attach existing policies directly**.
+8. Search for and check ``AmazonS3FullAccess``.
+9. Search for and check ``CloudFrontFullAccess``.
+10. Select **Next: Tags**.
+11. Select **Next: Review**
+    ![image-20210811101016788](C:\Users\malco\AppData\Roaming\Typora\typora-user-images\image-20210811101016788.png)
+12. Select **Create user**.
+13. On the next screen you are given credentials for the new user. AWS will not show these to you again and you will need them later.
+    ![image-20210811102123088](C:\Users\malco\AppData\Roaming\Typora\typora-user-images\image-20210811102123088.png)
+    1. Record the Access key ID as <a name="AWS_ACCESS_KEY_ID"></a>``AWS_ACCESS_KEY_ID``.
+    2. Show the Secret access key and record it as <a name="AWS_SECRET_ACCESS_KEY"></a>``AWS_SECRET_ACCESS_KEY``.
+       
+
+#### Obtain an ACM Certificate
+
+This is needed for cuplfrontend to be served over HTTPS. The next section assumes your ``ROOT_DOMAIN`` was registered with Amazon Route 53.
+
+1. Sign into [AWS Certificate Manager](https://us-east-2.console.aws.amazon.com/acm).
+2. In the top-right corner, change your region to **US East (N. Virginia)**.
+   ![image-20210811103013927](C:\Users\malco\AppData\Roaming\Typora\typora-user-images\image-20210811103013927.png)
+3. Under **Provision certificates** select **Get started**.
+4. Check **Request a public certificate** and select **Request a certificate**.
+5. Under **Domain name** enter the domain your frontend application will be served from. 
+   This will be in the format ``DEPLOY_NAME.f.ROOT_DOMAIN`` (*example* ``latest.f.lpuc.uk``). 
+6. Select **Next**.
+7. Check **DNS validation** and select **Next**.
+8. Select **Review** ([screenshot](C:\Users\malco\AppData\Roaming\Typora\typora-user-images\image-20210811104002620.png)).
+9. Select **Confirm and request**.
+10. Open the drop down for your domain and select **Create record in Route 53**.
+    ![image-20210811104227816](C:\Users\malco\AppData\Roaming\Typora\typora-user-images\image-20210811104227816.png)
+11. Select **Create**. A CNAME DNS record will be created in your Route 53 hosted zone. ACM uses this as proof of domain ownership when issuing a certificate.
+
+#### CloudFront CDN 
+
+CloudFront is a Content Delivery Network. It copies files from the S3 bucket to locations around the world. Web application load times are reduced when files are in close proximity to your users. It also provides an easy means of serving the frontend over HTTPS, using the certificate created above. 
+
+##### Create a Distribution
+
+1. Sign into [AWS CloudFront](https://console.aws.amazon.com/cloudfront).
+2. Select **Create Distribution**.
+3. Under *Select a delivery method* select **Get Started**.
+4. Under **Origin Domain Name** select your ``AWS_S3_BUCKET`` from the drop-down.
+   
+5. Under **Origin Path** enter the ``DEPLOY_NAME`` preceded by a `/` (*example* ``/latest``).
+6. Under **Restrict Bucket Access** check **No**.
+7. Under **Viewer Protocol Policy** select **Redirect HTTP to HTTPS**.
+8. Under **Alternate Domain Names (CNAMES)** enter ``DEPLOY_NAME.f.ROOT_DOMAIN`` (*example* ``latest.f.lpuc.uk``).
+9. Under **SSL Certificate** check **Custom SSL Certificate**.
+10. Select the ACM certificate (created above) from the drop down list.
+    ![image-20210812232031273](C:\Users\malco\AppData\Roaming\Typora\typora-user-images\image-20210812232031273.png)
+11. Select **Create Distribution** in the bottom right.
+12. The distribution will take several minutes to start. Wait for *In Progress* to change to *Enabled*.
+    ![image-20210812232645488](C:\Users\malco\AppData\Roaming\Typora\typora-user-images\image-20210812232645488.png)
+13. Make a note of the distribution ID (covered in blue above). There is one distribution per deployment. For ``DEPLOY_NAME = latest``, the variable will be named ``LATEST_AWS_CLOUDFRONT_DIST_ID``.
+14. Also make a note of the <a name="distribution-domain-name"></a> domain name.
+
+##### Define the Error Page
+
+The 403 error page does not route to the page defined in the frontend web application, unless these steps are followed:
+
+1. Go to the [distributions](https://console.aws.amazon.com/cloudfront/home?#distributions) list in CloudFront.
+2. Select your ``LATEST_AWS_CLOUDFRONT_DIST_ID``.
+3. Select the **Error Pages** tab from the top menu.
+4. Select **Create Custom Error Response**.
+5. Under **Customize Error Response** check **Yes**.
+6. Under **Response Page Path** enter ``/index.html``. 
+7. Under **HTTP response code** enter ``200``. 
+
+##### Add an A Record to the CloudFront Distribution
+
+1. Sign into [Amazon Route 53](https://console.aws.amazon.com/route53/v2/home#Dashboard).
+2. Select **Hosted Zones**.
+3. Select your ``ROOT_DOMAIN``.
+4. Select **Create record** in the top right.
+5. Under **Record name** enter ``latest.f``
+6. Enable the **Alias** switch.
+7. From the dropdown menu select **Alias to CloudFront Distribution**.
+8. Select your [distribution domain name](#distribution-domain-name) from the dropdown list.
+9. Change **TTL (seconds)** to 60. 
+10. Select **Create records**.
+
+![image-20210813003813247](C:\Users\malco\AppData\Roaming\Typora\typora-user-images\image-20210813003813247.png)
+
+#### Re-run cupldeploy
+
+##### Define GitHub Secrets
+
+1. Navigate to your fork of cupldeploy on GitHub.
+
+2. Follow the instructions [here](https://github.com/cuplsensor/cupldeploy#define-github-secrets) to add the following secrets:
+
+| Name                              | Value                                  | Required |
+| --------------------------------- | -------------------------------------- | -------- |
+| ``AWS_S3_BUCKET``                 | [link](#AWS_S3_BUCKET)                 | Yes      |
+| ``AWS_S3_REGION``                 | [link](#AWS_S3_REGION)                 | Yes      |
+| ``AWS_ACCESS_KEY_ID``             | [link](#AWS_ACCESS_KEY_ID)             | Yes      |
+| ``AWS_SECRET_ACCESS_KEY``         | [link](#AWS_SECRET_ACCESS_KEY)         | Yes      |
+| ``LATEST_AWS_CLOUDFRONT_DIST_ID`` | [link](#LATEST_AWS_CLOUDFRONT_DIST_ID) | Yes      |
+
+##### Re-Run the cupldeploy Action
+
+1. Follow the instructions [here](run-the-deployment-action) to run the deployment action again. 
+2. Expect to see green ticks everywhere. Both the backend and frontend should deploy successfully.
+
+![image-20210813002033363](C:\Users\malco\AppData\Roaming\Typora\typora-user-images\image-20210813002033363.png)
+
+##### Test cuplfrontend
+
+In a web browser, navigate to ``latest.f.ROOT_DOMAIN`` (*example* ``latest.f.lpuc.uk``). Expect to see:
+
+![image-20210813005419721](C:\Users\malco\AppData\Roaming\Typora\typora-user-images\image-20210813005419721.png)
+
+If you do, stop work for the day and open a beer. I'll have a Staropramen, cheers! You now have a graphical frontend to the backend you deployed earlier.
 
 
 
