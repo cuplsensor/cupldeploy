@@ -500,7 +500,9 @@ This is needed for cuplfrontend to be served over HTTPS. The next section assume
 
 1. Sign into [AWS Certificate Manager](https://us-east-2.console.aws.amazon.com/acm).
 2. In the top-right corner, change your region to **US East (N. Virginia)**.
+
    ![image-20210811103013927](docs/screenshots/image-20210811103013927.png)
+
 3. Under **Provision certificates** select **Get started**.
 4. Check **Request a public certificate** and select **Request a certificate**.
 5. Under **Domain name** enter the domain your frontend application will be served from. 
