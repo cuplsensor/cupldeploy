@@ -534,7 +534,7 @@ CloudFront is a Content Delivery Network. It copies files from the S3 bucket to 
 11. Select **Create Distribution** in the bottom right.
 12. The distribution will take several minutes to start. Wait for *In Progress* to change to *Enabled*.
     ![image-20210812232645488](docs/screenshots/image-20210812232645488.png)
-13. Make a note of the distribution ID (covered in blue above). There is one distribution per deployment. For ``DEPLOY_NAME = latest``, the variable will be named ``LATEST_AWS_CLOUDFRONT_DIST_ID``.
+13. Make a note of the distribution ID (covered in blue above). There is one distribution per deployment. For ``DEPLOY_NAME = latest``, the variable will be named <a name="LATEST_AWS_CLOUDFRONT_DIST_ID"></a>``LATEST_AWS_CLOUDFRONT_DIST_ID``.
 14. Also make a note of the <a name="distribution-domain-name"></a> domain name.
 
 ##### Define the Error Page
