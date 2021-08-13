@@ -215,10 +215,11 @@ jobs:
           AWS_S3_BUCKET:               ${{ secrets.AWS_S3_BUCKET }}
           AWS_ACCESS_KEY_ID:           ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY:       ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION:                  'us-east-1'   # optional: defaults to us-east-1
+          AWS_REGION:                  ${{ secrets.AWS_S3_REGION }}   
           SOURCE_DIR:                  './cuplfrontend/reactapp/build'      # optional: defaults to entire repository
           DEST_DIR:                    ${{ needs.distname_job.outputs.DISTNAME }}
           
+        # Regardless of AWS_S3_REGION, you must set the region to us-east-1 for CloudFront.
       - name: Invalidate the cloudfront cache so the CDN updates its edge servers from S3.
         run: |
           aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
