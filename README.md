@@ -425,8 +425,7 @@ This part of the installation guide is based on an [article](https://medium.com/
 ##### Create
 
 1. Sign into [Amazon S3](https://console.aws.amazon.com/s3).
-2. Select **Create bucket**.
-   ![image-20210810180542417](docs/screenshots/image-20210810180542417.png)
+2. Select **Create bucket**. ([screenshot](docs/screenshots/image-20210810180542417.png))
 3. Enter a unique **bucket name**. This will be referred to as <a name="AWS_S3_BUCKET"></a>``AWS_S3_BUCKET`` (*example* ``lpuc-frontend-bucket``). 
 4. Select an **AWS Region** where the bucket will be created. You can leave the default. This will be referred to as <a name="AWS_S3_REGION"></a>``AWS_S3_REGION`` (*example* ``us-east-2``).
 5. Uncheck **block all public access**. The web application will be hosted from here, so public access is required.
@@ -435,15 +434,15 @@ This part of the installation guide is based on an [article](https://medium.com/
 
 ##### Enable Static Web Hosting
 
-1. Select your ``AWS_S3_BUCKET``.
-   ![select-bucket](C:\Users\malco\Documents\Plotsensor\cupldeploy\docs\screenshots\select-bucket.png)
+1. Select your ``AWS_S3_BUCKET``. ([screenshot](docs/screenshots/select-bucket.png))
 2. Select the **Properties** tab.
 3. Scroll down to **Static website hosting** and enable it.
 4. Set the **Index document** to ``index.html``.
 5. Set the **Error document** to ``index.html``.
 6. Select **Save changes**.
 7. Your bucket will be assigned a URL.
-   ![image-20210810184411109](docs/screenshots/image-20210810184411109.png)
+   
+![image-20210810184411109](docs/screenshots/image-20210810184411109.png)
 
 ##### Edit Permissions
 
@@ -487,8 +486,7 @@ When you visit the URL, you will see an error message ``403 Forbidden``. There i
 8. Search for and check ``AmazonS3FullAccess``.
 9. Search for and check ``CloudFrontFullAccess``.
 10. Select **Next: Tags**.
-11. Select **Next: Review**
-    ![image-20210811101016788](docs/screenshots/image-20210811101016788.png)
+11. Select **Next: Review** ([screenshot](docs/screenshots/image-20210811101016788.png))
 12. Select **Create user**.
 13. On the next screen you are given credentials for the new user. AWS will not show these to you again and you will need them later.
     ![image-20210811102123088](docs/screenshots/image-20210811102123088.png)
@@ -496,7 +494,7 @@ When you visit the URL, you will see an error message ``403 Forbidden``. There i
     2. Show the Secret access key and record it as <a name="AWS_SECRET_ACCESS_KEY"></a>``AWS_SECRET_ACCESS_KEY``.
        
 
-#### Obtain an ACM Certificate
+#### <a name="acm-certificate"></a>Obtain an ACM Certificate
 
 This is needed for cuplfrontend to be served over HTTPS. The next section assumes your ``ROOT_DOMAIN`` was registered with Amazon Route 53.
 
@@ -525,14 +523,12 @@ CloudFront is a Content Delivery Network. It copies files from the S3 bucket to 
 2. Select **Create Distribution**.
 3. Under *Select a delivery method* select **Get Started**.
 4. Under **Origin Domain Name** select your ``AWS_S3_BUCKET`` from the drop-down.
-   
 5. Under **Origin Path** enter the ``DEPLOY_NAME`` preceded by a `/` (*example* ``/latest``).
 6. Under **Restrict Bucket Access** check **No**.
 7. Under **Viewer Protocol Policy** select **Redirect HTTP to HTTPS**.
 8. Under **Alternate Domain Names (CNAMES)** enter ``DEPLOY_NAME.f.ROOT_DOMAIN`` (*example* ``latest.f.lpuc.uk``).
 9. Under **SSL Certificate** check **Custom SSL Certificate**.
-10. Select the ACM certificate (created above) from the drop down list.
-    ![image-20210812232031273](docs/screenshots/image-20210812232031273.png)
+10. Select your [ACM certificate](#acm-certificate) from the drop down list. ([screenshot](docs/screenshots/image-20210812232031273.png))
 11. Select **Create Distribution** in the bottom right.
 12. The distribution will take several minutes to start. Wait for *In Progress* to change to *Enabled*.
     ![image-20210812232645488](docs/screenshots/image-20210812232645488.png)
