@@ -173,7 +173,7 @@ jobs:
           # Flask-Limiter environment variables.
           RATELIMIT_STORAGE_URL: 'redis://redis_r1:6379'
           RATELIMIT_STRATEGY:    'moving-window'
-          RATELIMIT_ENABLED:     'false'
+          RATELIMIT_ENABLED:     ${{ secrets.RATELIMIT_ENABLED }} 
           RATELIMIT_DEFAULT:     ${{ secrets.RATELIMIT_DEFAULT }} 
 
   # This workflow contains a single job called "build"
