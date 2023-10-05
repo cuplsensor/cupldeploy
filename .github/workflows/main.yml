@@ -98,7 +98,7 @@ jobs:
           
         
   backend_to_droplet:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     name: Use docker-compose over SSH to run cuplbackend on a droplet.
     needs: distname_job
     steps:      
